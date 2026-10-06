@@ -1,0 +1,99 @@
+@import 'tailwindcss';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-waze: 'Boing', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --color-w-blue-50: #caf8ff;
+    --color-w-blue-100: #98e9ff;
+    --color-w-blue-200: #65dbff;
+    --color-w-blue: #33ccff;
+    --color-w-blue-500: #0099ff;
+    --color-w-blue-600: #0075e3;
+    --color-w-blue-800: #225aa8;
+    --color-w-green-50: #bbffda;
+    --color-w-green-100: #87f6c2;
+    --color-w-green-200: #52eeaa;
+    --color-w-green: #1ee592;
+    --color-w-green-500: #1bab50;
+    --color-w-green-700: #0b7039;
+    --color-w-green-900: #024c2a;
+    --color-w-purple-50: #f4ebff;
+    --color-w-purple-100: #e6ccff;
+    --color-w-purple-200: #d5acff;
+    --color-w-purple-300: #c088ff;
+    --color-w-purple: #963eff;
+    --color-w-purple-700: #711ed4;
+    --color-w-purple-900: #4e00aa;
+    --color-w-yellow-50: #fff9ce;
+    --color-w-yellow-100: #fff59d;
+    --color-w-yellow-200: #fdec7b;
+    --color-w-yellow: #fce354;
+    --color-w-yellow-500: #ffc400;
+    --color-w-yellow-600: #ffa600;
+    --color-w-yellow-700: #f18200;
+    --color-w-orange-50: #fff0e0;
+    --color-w-orange-100: #ffdebd;
+    --color-w-orange-200: #ffcc99;
+    --color-w-orange-400: #fea066;
+    --color-w-orange: #fd804b;
+    --color-w-orange-700: #c25700;
+    --color-w-orange-900: #8a3700;
+    --color-w-red-50: #ffebeb;
+    --color-w-red-100: #ffcccc;
+    --color-w-red-200: #ffaeae;
+    --color-w-red-300: #ff8f8f;
+    --color-w-red: #ff5252;
+    --color-w-red-700: #cb0000;
+    --color-w-red-900: #75011d;
+    --color-w-grey-50: #f8f9fa;
+    --color-w-grey-widget: #f2f4f7;
+    --color-w-grey-200: #e8eaed;
+    --color-w-grey-300: #d5d7db;
+    --color-w-grey-400: #b7babf;
+    --color-w-grey-600: #72767d;
+    --color-w-grey-800: #3c4043;
+    --color-w-grey-900: #202124;
+}
+
+@layer base {
+    @font-face {
+        font-family: 'Boing';
+        src: url('fonts/WazeBoing-Medium.woff2') format('woff2');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'Boing';
+        src: url('fonts/WazeBoing-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        background-color: var(--color-w-grey-50);
+    }
+
+    body {
+        background-color: var(--color-w-grey-50);
+        min-height: 100dvh;
+    }
+}
+
+@layer components {
+    .cta-pill {
+        @apply inline-flex items-center justify-center whitespace-nowrap rounded-full border-2 border-w-grey-200 bg-white px-5 py-2 font-medium text-w-grey-900 transition-colors duration-200;
+    }
+
+    .cta-pill:hover {
+        @apply border-w-blue-200 bg-w-blue-50;
+    }
+}
+
+[x-cloak] {
+    display: none;
+}
