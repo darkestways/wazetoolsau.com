@@ -1,5 +1,5 @@
 {
-  "name": "wazetools.au site",
+  "name": "waze-tools-au-site",
   "private": true,
   "scripts": {
     "build:css": "tailwindcss -i ./src/assets/css/app.css -o ./src/assets/css/site.css --minify",
