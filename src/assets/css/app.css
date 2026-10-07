@@ -94,11 +94,11 @@
     }
 
     .screenshot {
-        @apply h-auto max-w-full mb-4 rounded-lg border border-w-grey-200 bg-w-grey-widget p-2 shadow-md drop-shadow-2xl object-cover object-center;
+        @apply h-auto max-w-full mb-4 rounded-lg border border-w-grey-200 bg-w-grey-widget p-2 shadow-md drop-shadow-2xl object-cover object-center transition-all duration-200 ease-out;
     }
 
     .screenshot:hover {
-        @apply border-w-blue-200 bg-w-blue-50;
+        @apply border-w-blue-200 bg-w-blue-50 scale-[175%] z-10 drop-shadow-2xl;
     }
 
     .script-card {
