@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title | default: site.title }}</title>
+    <meta name="description" content="{{ page.description | default: site.description }}">
+    <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+  </head>
+  <body class="font-waze min-h-screen bg-slate-100 antialiased pb-24">
+    <main class="font-waze relative min-h-screen">
+      <div class="flex flex-col gap-8 mb-20 max-w-7xl mx-auto p-6 drop-shadow-lg">
+        <div class="grid lg:grid-cols-1 gap-8">
+          <div class="rounded-lg border border-w-blue-200 bg-w-blue-100 p-6 pb-20 sm:px-8 sm:py-20 relative lg:flex-1">
+            <a href="/" class="inline-flex items-center rounded-full bg-white/75 px-3 py-1 text-sm mb-4">🏠 Waze Tools Australia - by DarkestWays</a>
+            <h1 class="text-3xl sm:text-5xl font-medium mb-4 leading-tight text-blue-950">Waze Tools Australia</h1>
+            <p class="text-lg sm:text-2xl leading-snug max-w-2xl text-w-blue-800">A website for various Waze and Waze Map Editor related scripts and tools.</p>
+            <div class="absolute -bottom-4 right-6">
+              <button class="cta-pill bg-white/85 w-full sm:w-auto sm:shrink-0 hover:bg-neutral-50 hover:border-gray-200">Visit DarkestWays on ➡</button>
+              <a href="https://github.com/darkestways" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="cta-pill bg-white/85 w-full sm:w-auto sm:shrink-0 hover:bg-slate-800 hover:border-slate-600 hover:text-white">GitHub</a>
+              <a href="https://greasyfork.org/en/users/1558508-darkest-ways-waze" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="cta-pill bg-white/85 w-full sm:w-auto sm:shrink-0 hover:bg-red-700 hover:border-red-600 hover:text-white">Greasy Fork</a>
+            </div>
+          </div>
+        </div>
+        {{ content }}
+        <div class="rounded-lg bg-w-orange-100 border border-w-orange-400 px-4 py-6 pb-20 sm:px-8 sm:pb-6 flex flex-col gap-4 relative sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-col gap-2">
+            <h2 class="text-2xl font-medium">Spotted a map error?</h2>
+            <p class="text-w-grey-800">Report map issues directly from the Waze app so local editors can review and fix them.</p>
+          </div>
+          <a href="https://support.google.com/waze/answer/7101380" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="cta-pill sm:mr-5 hover:border-orange-400 hover:bg-orange-100">How to report</a>
+        </div>
+      </div>
+    </main>
+
+    <footer class="fixed inset-x-0 bottom-0 z-50 px-4 font-light">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-2 gap-y-2 rounded-full px-4 py-0 backdrop-blur-sm">
+        <div class="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-2 rounded-full border border-w-grey-300 bg-white/95 px-4 py-2 text-sm text-w-grey-800 shadow-xl mt-4 mb-4">
+          <span>Powered by</span>
+          <a class="text-w-blue-600 hover:text-shadow-lg" href="https://pages.github.com/" target="_blank"
+             rel="noopener noreferrer">GitHub Pages</a>
+          <span aria-hidden="true">&middot;</span>
+          <a class="text-w-blue-600 hover:text-shadow-lg" href="https://jekyllrb.com/" target="_blank"
+             rel="noopener noreferrer">Jekyll</a>
+          <span aria-hidden="true">&middot;</span>
+          <a class="text-w-blue-600 hover:text-shadow-lg" href="https://tailwindcss.com/" target="_blank"
+             rel="noopener noreferrer">Tailwind CSS</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

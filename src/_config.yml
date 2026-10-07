@@ -1,0 +1,15 @@
+title: Waze Tools AU
+description: A website for various Waze and Waze Map Editor related scripts and tools
+url: "https://wazetoolsau.com"
+baseurl: ""
+
+markdown: kramdown
+
+show_dir_listing: false
+
+exclude:
+  - node_modules
+  - vendor
+  - Gemfile
+  - Gemfile.lock
+  - assets/css/app.css

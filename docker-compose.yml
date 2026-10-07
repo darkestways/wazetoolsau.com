@@ -1,0 +1,26 @@
+services:
+  jekyll:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wazetools_au-site
+    command: bundle exec jekyll serve --source src --destination _site --host 0.0.0.0 --port 4000 --livereload --force_polling
+    ports:
+      - "4000:4000"
+      - "35729:35729"
+    volumes:
+      - .:/site
+      - bundle_cache:/usr/local/bundle
+    working_dir: /site
+
+  tailwind:
+    image: node:22-alpine
+    container_name: tailwind-watcher
+    working_dir: /site
+    command: sh -lc "npm install && npm run dev:css"
+    restart: unless-stopped
+    volumes:
+      - .:/site
+
+volumes:
+  bundle_cache:

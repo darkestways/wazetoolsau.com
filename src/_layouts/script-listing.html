@@ -1,0 +1,25 @@
+---
+layout: default
+---
+
+<div class="rounded-lg border border-emerald-200 bg-emerald-100 px-6 sm:px-8 py-4 gap-x-7 gap-y-4 flex flex-row sm:flex-row justify-between lg:flex-1 relative">
+    <div class="flex flex-col sm:flex-col justify-start lg:flex-1 relative">
+        <h3 class="text-xl sm:text-2xl font-medium text-emerald-900">{{ page.title }}</h3>
+        {% if page.description %}<p class="text-w-green-700">{{ page.description }}</p>{% endif %}
+        {% if page.author %}<p class="mt-auto pt-2 text-slate-400 text-sm leading-relaxed">Author: {{ page.author }}</p>{% endif %}
+    </div>
+    {% if page.icon %}
+    <img src="{{ page.icon | relative_url }}" alt="Script icon" class="h-10 w-10 object-contain mb-4 mr-4">
+    {% endif %}
+
+    {% if page.install_link %}
+    <div class="absolute -bottom-4 right-6">
+        <a href="{{ page.install_link }}" target="_blank" class="cta-pill w-full sm:w-auto sm:shrink-0 hover:border-w-green-500 hover:bg-w-green-50 hover:text-w-green-900">
+            Install
+        </a>
+    </div>
+    {% endif %}
+</div>
+<div class="rounded-lg border border-w-grey-200 bg-w-grey-widget text-w-grey-800 p-6 sm:p-8 flex flex-col flex-1 gap-6">
+    {{ content }}
+</div>
