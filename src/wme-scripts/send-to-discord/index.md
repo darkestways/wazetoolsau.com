@@ -3,7 +3,7 @@ layout: script-listing
 title: WME Send to Discord (Reloaded)
 description: Script to send (Un)lock / Closures / Open / PH / City-Seeding / Sat‑Imagery requests to Discord servers.
 author: DarkestWays
-install_link: https://wazetoolsau.com/wme-send-to-discord/wme-send-to-discord-reloaded.user.js
+install_link: https://wazetoolsau.com/wme-scripts/send-to-discord/dist/wme-send-to-discord-reloaded.user.js
 icon: /wme-scripts/send-to-discord/images/discord-symbol.svg
 ---
 
