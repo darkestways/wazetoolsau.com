@@ -59,7 +59,7 @@
 @layer base {
     @font-face {
         font-family: 'Boing';
-        src: url('fonts/WazeBoing-Medium.woff2') format('woff2');
+        src: url('../fonts/WazeBoing-Medium.woff2') format('woff2');
         font-weight: 500;
         font-style: normal;
         font-display: swap;
@@ -67,7 +67,7 @@
 
     @font-face {
         font-family: 'Boing';
-        src: url('fonts/WazeBoing-Regular.woff2') format('woff2');
+        src: url('../fonts/WazeBoing-Regular.woff2') format('woff2');
         font-weight: 400;
         font-style: normal;
         font-display: swap;
@@ -91,6 +91,26 @@
 
     .cta-pill:hover {
         @apply border-w-blue-200 bg-w-blue-50;
+    }
+
+    .screenshot {
+        @apply h-auto max-w-full mb-4 rounded-lg border border-w-grey-200 bg-w-grey-widget p-2 shadow-md drop-shadow-2xl object-cover object-center;
+    }
+
+    .screenshot:hover {
+        @apply border-w-blue-200 bg-w-blue-50;
+    }
+
+    .script-card {
+        @apply flex flex-col bg-gray-50 rounded-xl border border-w-grey-200 p-5 transition-all duration-200;
+    }
+
+    .script-card:hover{
+        @apply bg-white border-w-blue-200 -translate-y-0.5 backdrop-blur-3xl drop-shadow-2xl;
+    }
+
+    .script-card > .script-card-icon {
+        @apply h-14 w-14 object-contain mb-4;
     }
 }
 
