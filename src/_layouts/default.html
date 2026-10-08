@@ -6,6 +6,11 @@
     <title>{{ page.title | default: site.title }}</title>
     <meta name="description" content="{{ page.description | default: site.description }}">
     <link rel="stylesheet" href="{{ '/assets/css/site.css' | relative_url }}">
+    <link rel="icon" type="image/png" href="{{ '/assets/favicons/favicon-96x96.png' | relative_url }}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{{ '/assets/favicons/favicon.svg' | relative_url }}" />
+    <link rel="shortcut icon" href="{{ '/assets/favicons/favicon.ico' | relative_url }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/favicons/apple-touch-icon.png' | relative_url }}" />
+    <link rel="manifest" href="{{ '/assets/favicons/site.webmanifest' | relative_url }}" />
   </head>
   <body class="font-waze min-h-screen bg-slate-100 antialiased pb-24">
     <main class="font-waze relative min-h-screen">
