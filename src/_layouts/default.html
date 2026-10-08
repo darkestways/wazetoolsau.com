@@ -39,12 +39,28 @@
           </div>
         </div>
         {{ content }}
-        <div class="rounded-lg bg-w-orange-100 border border-w-orange-400 px-4 py-6 pb-20 sm:px-8 sm:pb-6 flex flex-col gap-4 relative sm:flex-row sm:items-center sm:justify-between">
-          <div class="flex flex-col gap-2">
-            <h2 class="text-2xl font-medium">Spotted a map error?</h2>
-            <p class="text-w-grey-800">Report map issues directly from the Waze app so local editors can review and fix them.</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 sm:grid-cols-2 gap-8">
+          <div class="rounded-lg bg-w-orange-100 border border-w-orange-400 px-4 py-6 pb-10 sm:px-8 sm:pb-6 flex flex-col gap-4 relative sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-2">
+              <h2 class="text-2xl font-medium">Spotted a map error?</h2>
+              <p class="text-w-grey-800">Report map issues directly from the Waze app so local editors can review and fix them.</p>
+            </div>
+            <a class="cta-pill sm:mr-5 hover:border-orange-400 hover:bg-orange-100" href="https://support.google.com/waze/answer/7101380" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank">
+              How to report
+            </a>
           </div>
-          <a href="https://support.google.com/waze/answer/7101380" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="cta-pill sm:mr-5 hover:border-orange-400 hover:bg-orange-100">How to report</a>
+          <div class="rounded-lg bg-w-green-100 border border-w-green-500 px-4 py-6 pb-10 sm:px-8 sm:pb-6 flex flex-col gap-4 relative sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-2">
+              <h2 class="text-2xl font-medium">Want to showcase your script?</h2>
+              <p class="text-w-green-900">
+                Create a fork on GitHub and send a PR.
+                You must be an Australian editor and joined
+                <a class="text-w-purple-700 hover:text-shadow-lg" href="https://discord.me/wazeaustralia" target="_blank" rel="noopener noreferrer">Discord</a>.</p>
+            </div>
+            <a class="cta-pill sm:mr-5 hover:border-green-400 hover:bg-green-100" href="https://github.com/darkestways/wazetoolsau.com/fork" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank">
+              {% include icons/github-octocat-logo.svg %}<span>Fork me!</span>
+            </a>
+          </div>
         </div>
       </div>
     </main>
