@@ -11,6 +11,8 @@
     --color-red-700: oklch(50.5% 0.213 27.518);
     --color-orange-100: oklch(95.4% 0.038 75.164);
     --color-orange-400: oklch(75% 0.183 55.934);
+    --color-green-100: oklch(96.2% 0.044 156.743);
+    --color-green-400: oklch(79.2% 0.209 151.711);
     --color-emerald-100: oklch(95% 0.052 163.051);
     --color-emerald-200: oklch(90.5% 0.093 164.15);
     --color-emerald-900: oklch(37.8% 0.077 168.94);
@@ -67,14 +69,17 @@
     --color-w-blue-800: #225aa8;
     --color-w-blue-900: #163b72;
     --color-w-green-50: #bbffda;
+    --color-w-green-100: #87f6c2;
     --color-w-green-500: #1bab50;
     --color-w-green-700: #0b7039;
     --color-w-green-900: #024c2a;
     --color-w-purple-100: #e6ccff;
     --color-w-purple-200: #d5acff;
+    --color-w-purple-700: #711ed4;
     --color-w-purple-900: #4e00aa;
     --color-w-orange-100: #ffdebd;
     --color-w-orange-400: #fea066;
+    --color-w-grey-50: #f8f9fa;
     --color-w-grey-widget: #f2f4f7;
     --color-w-grey-200: #e8eaed;
     --color-w-grey-300: #d5d7db;
@@ -468,6 +473,12 @@
   .border-w-blue-200 {
     border-color: var(--color-w-blue-200);
   }
+  .border-w-green-500 {
+    border-color: var(--color-w-green-500);
+  }
+  .border-w-grey-50 {
+    border-color: var(--color-w-grey-50);
+  }
   .border-w-grey-200 {
     border-color: var(--color-w-grey-200);
   }
@@ -485,6 +496,12 @@
   }
   .bg-w-blue-100 {
     background-color: var(--color-w-blue-100);
+  }
+  .bg-w-green-100 {
+    background-color: var(--color-w-green-100);
+  }
+  .bg-w-grey-200 {
+    background-color: var(--color-w-grey-200);
   }
   .bg-w-grey-widget {
     background-color: var(--color-w-grey-widget);
@@ -567,6 +584,9 @@
   .pt-6 {
     padding-top: calc(var(--spacing) * 6);
   }
+  .pb-10 {
+    padding-bottom: calc(var(--spacing) * 10);
+  }
   .pb-20 {
     padding-bottom: calc(var(--spacing) * 20);
   }
@@ -635,6 +655,9 @@
   .text-w-green-700 {
     color: var(--color-w-green-700);
   }
+  .text-w-green-900 {
+    color: var(--color-w-green-900);
+  }
   .text-w-grey-400 {
     color: var(--color-w-grey-400);
   }
@@ -646,6 +669,9 @@
   }
   .text-w-grey-900 {
     color: var(--color-w-grey-900);
+  }
+  .text-w-purple-700 {
+    color: var(--color-w-purple-700);
   }
   .text-w-purple-900 {
     color: var(--color-w-purple-900);
@@ -676,6 +702,9 @@
     .hover\:border-gray-200:hover {
       border-color: var(--color-gray-200);
     }
+    .hover\:border-green-400:hover {
+      border-color: var(--color-green-400);
+    }
     .hover\:border-orange-400:hover {
       border-color: var(--color-orange-400);
     }
@@ -690,6 +719,9 @@
     }
     .hover\:border-w-green-500:hover {
       border-color: var(--color-w-green-500);
+    }
+    .hover\:bg-green-100:hover {
+      background-color: var(--color-green-100);
     }
     .hover\:bg-neutral-50:hover {
       background-color: var(--color-neutral-50);
@@ -721,11 +753,17 @@
     .hover\:text-white:hover {
       color: var(--color-white);
     }
+    .hover\:text-shadow-2xs:hover {
+      text-shadow: 0px 1px 0px var(--tw-text-shadow-color, rgb(0 0 0 / 0.15));
+    }
     .hover\:text-shadow-lg:hover {
       text-shadow: 0px 1px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)), 0px 3px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)), 0px 4px 8px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1));
     }
     .hover\:text-shadow-sm:hover {
       text-shadow: 0px 1px 0px var(--tw-text-shadow-color, rgb(0 0 0 / 0.075)), 0px 1px 1px var(--tw-text-shadow-color, rgb(0 0 0 / 0.075)), 0px 2px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.075));
+    }
+    .hover\:text-shadow-xs:hover {
+      text-shadow: 0px 1px 1px var(--tw-text-shadow-color, rgb(0 0 0 / 0.2));
     }
   }
   @media (width >= 40rem) {
@@ -770,6 +808,9 @@
     }
     .sm\:grid-cols-1 {
       grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    .sm\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .sm\:grid-cols-3 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -834,6 +875,9 @@
     .sm\:pb-6 {
       padding-bottom: calc(var(--spacing) * 6);
     }
+    .sm\:pb-20 {
+      padding-bottom: calc(var(--spacing) * 20);
+    }
     .sm\:text-2xl {
       font-size: var(--text-2xl);
       line-height: var(--tw-leading, var(--text-2xl--line-height));
@@ -869,6 +913,9 @@
     }
     .lg\:grid-cols-1 {
       grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    .lg\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 }
