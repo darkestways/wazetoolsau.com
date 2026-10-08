@@ -17,13 +17,18 @@
       <div class="flex flex-col gap-8 mb-20 max-w-7xl mx-auto p-6 drop-shadow-lg">
         <div class="grid lg:grid-cols-1 gap-8">
           <div class="rounded-lg border border-w-blue-200 bg-w-blue-100 p-6 pb-20 sm:px-8 sm:py-20 relative lg:flex-1">
-            <a href="/" class="inline-flex items-center rounded-full bg-white/75 px-3 py-1 text-sm mb-4">🏠 Waze Tools Australia - by DarkestWays</a>
+            <a href="/" class="inline-flex items-center rounded-full bg-white/75 px-3 py-1 text-sm mb-4">
+              🏠 <span class="hidden sm:inline-flex sm:px-2">Waze ToolsAustralia - by DarkestWays</span>
+            </a>
             <h1 class="text-3xl sm:text-5xl font-medium mb-4 leading-tight text-blue-950">Waze Tools Australia</h1>
             <p class="text-lg sm:text-2xl leading-snug max-w-2xl text-w-blue-800">A website for various Waze and Waze Map Editor related scripts and tools.</p>
-            <div class="absolute -bottom-4 right-6">
-              <button class="cta-pill bg-white/85 w-full sm:w-auto sm:shrink-0 hover:bg-neutral-50 hover:border-gray-200">Visit DarkestWays on ➡</button>
-              <a href="https://github.com/darkestways" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="cta-pill bg-white/85 w-full sm:w-auto sm:shrink-0 hover:bg-slate-800 hover:border-slate-600 hover:text-white">GitHub</a>
-              <a href="https://greasyfork.org/en/users/1558508-darkest-ways-waze" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="cta-pill bg-white/85 w-full sm:w-auto sm:shrink-0 hover:bg-red-700 hover:border-red-600 hover:text-white">Greasy Fork</a>
+
+            <div class="absolute -bottom-4 right-0 sm:right-6 w-full sm:w-auto text-sm sm:text-base flex flex-row justify-center gap-2 sm:flex-row sm:items-center sm:justify-end">
+              <button class="cta-pill bg-white/85 hidden sm:w-auto sm:inline-flex hover:bg-neutral-50 hover:border-gray-200">Visit DarkestWays on ➡</button>
+              <a href="https://github.com/darkestways" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="cta-pill bg-white/85 sm:w-auto sm:shrink-0 hover:bg-slate-800 hover:border-slate-600 hover:text-white">
+                GitHub
+              </a>
+              <a href="https://greasyfork.org/en/users/1558508-darkest-ways-waze" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="cta-pill bg-white/85 sm:w-auto sm:shrink-0 hover:bg-red-700 hover:border-red-600 hover:text-white">Greasy Fork</a>
             </div>
           </div>
         </div>
@@ -38,9 +43,9 @@
       </div>
     </main>
 
-    <footer class="fixed inset-x-0 bottom-0 z-50 px-4 font-light">
-      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-2 gap-y-2 rounded-full px-4 py-0 backdrop-blur-sm">
-        <div class="mx-auto flex w-fit max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-2 rounded-full border border-w-grey-300 bg-white/95 px-4 py-2 text-sm text-w-grey-800 shadow-xl mt-4 mb-4">
+    <footer class="fixed inset-x-0 bottom-0 z-50 px-0 sm:px-4 font-light">
+      <div class="mx-auto max-w-full sm:max-w-7xl px-0 py-0 sm:px-4 sm:py-0 flex flex-wrap items-center justify-center gap-x-2 gap-y-2 rounded-none sm:rounded-full backdrop-blur-sm">
+        <div class="mx-auto mt-4 mb-4 px-2 sm:px-4 py-1 sm:py-2 max-w-full sm:max-w-2xl sm:w-fit text-xs sm:text-sm flex flex-wrap items-center justify-center gap-x-2 gap-y-2 rounded-full shadow-xl border border-w-grey-300 bg-white/95 text-w-grey-800">
           <span>Powered by</span>
           <a class="text-w-blue-600 hover:text-shadow-lg" href="https://pages.github.com/" target="_blank"
              rel="noopener noreferrer">GitHub Pages</a>
