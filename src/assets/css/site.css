@@ -63,6 +63,7 @@
     --color-w-blue-100: #98e9ff;
     --color-w-blue-200: #65dbff;
     --color-w-blue: #33ccff;
+    --color-w-blue-500: #0099ff;
     --color-w-blue-600: #0075e3;
     --color-w-blue-800: #225aa8;
     --color-w-blue-900: #163b72;
@@ -729,6 +730,9 @@
     .hover\:border-w-blue-200:hover {
       border-color: var(--color-w-blue-200);
     }
+    .hover\:border-w-blue-500:hover {
+      border-color: var(--color-w-blue-500);
+    }
     .hover\:border-w-green-500:hover {
       border-color: var(--color-w-green-500);
     }
@@ -841,6 +845,9 @@
     }
     .sm\:justify-end {
       justify-content: flex-end;
+    }
+    .sm\:gap-2 {
+      gap: calc(var(--spacing) * 2);
     }
     .sm\:gap-4 {
       gap: calc(var(--spacing) * 4);
