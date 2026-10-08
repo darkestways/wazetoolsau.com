@@ -11,6 +11,7 @@
     --color-w-blue-500: #0099ff;
     --color-w-blue-600: #0075e3;
     --color-w-blue-800: #225aa8;
+    --color-w-blue-900: #163b72;
     --color-w-green-50: #bbffda;
     --color-w-green-100: #87f6c2;
     --color-w-green-200: #52eeaa;
@@ -75,12 +76,13 @@
 
     html {
         scroll-behavior: smooth;
-        background-color: var(--color-w-grey-50);
+        background-color: var(--color-w-grey-300);
     }
 
     body {
-        background-color: var(--color-w-grey-50);
+        background-color: var(--color-w-grey-300);
         min-height: 100dvh;
+        @apply antialiased font-waze;
     }
 }
 
