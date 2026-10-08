@@ -296,9 +296,6 @@
   .mt-auto {
     margin-top: auto;
   }
-  .mr-2 {
-    margin-right: calc(var(--spacing) * 2);
-  }
   .mr-4 {
     margin-right: calc(var(--spacing) * 4);
   }
@@ -338,26 +335,11 @@
   .inline-flex {
     display: inline-flex;
   }
-  .h-5 {
-    height: calc(var(--spacing) * 5);
-  }
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
-  .h-max {
-    height: max-content;
-  }
-  .max-h-2 {
-    max-height: calc(var(--spacing) * 2);
-  }
   .max-h-fit {
     max-height: fit-content;
-  }
-  .min-h-0 {
-    min-height: 0px;
-  }
-  .w-5 {
-    width: calc(var(--spacing) * 5);
   }
   .w-10 {
     width: calc(var(--spacing) * 10);
@@ -367,9 +349,6 @@
   }
   .w-full {
     width: 100%;
-  }
-  .w-max {
-    width: max-content;
   }
   .w-min {
     width: min-content;
@@ -382,9 +361,6 @@
   }
   .max-w-full {
     max-width: 100%;
-  }
-  .min-w-0 {
-    min-width: 0px;
   }
   .flex-1 {
     flex: 1;
@@ -422,32 +398,17 @@
   .items-center-safe {
     align-items: safe center;
   }
-  .items-stretch {
-    align-items: stretch;
-  }
-  .justify-around {
-    justify-content: space-around;
-  }
   .justify-between {
     justify-content: space-between;
   }
   .justify-center {
     justify-content: center;
   }
-  .justify-end {
-    justify-content: flex-end;
-  }
   .justify-end-safe {
     justify-content: safe flex-end;
   }
-  .justify-evenly {
-    justify-content: space-evenly;
-  }
   .justify-start {
     justify-content: flex-start;
-  }
-  .gap-1 {
-    gap: var(--spacing);
   }
   .gap-2 {
     gap: calc(var(--spacing) * 2);
@@ -492,9 +453,6 @@
   .border-emerald-200 {
     border-color: var(--color-emerald-200);
   }
-  .border-w-blue-50 {
-    border-color: var(--color-w-blue-50);
-  }
   .border-w-blue-200 {
     border-color: var(--color-w-blue-200);
   }
@@ -513,17 +471,8 @@
   .bg-emerald-100 {
     background-color: var(--color-emerald-100);
   }
-  .bg-w-blue {
-    background-color: var(--color-w-blue);
-  }
-  .bg-w-blue-50 {
-    background-color: var(--color-w-blue-50);
-  }
   .bg-w-blue-100 {
     background-color: var(--color-w-blue-100);
-  }
-  .bg-w-blue-200 {
-    background-color: var(--color-w-blue-200);
   }
   .bg-w-grey-widget {
     background-color: var(--color-w-grey-widget);
@@ -606,9 +555,6 @@
   .pb-20 {
     padding-bottom: calc(var(--spacing) * 20);
   }
-  .font-waze {
-    font-family: var(--font-waze);
-  }
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
@@ -689,9 +635,6 @@
   .text-w-purple-900 {
     color: var(--color-w-purple-900);
   }
-  .text-w-red-700 {
-    color: var(--color-w-red-700);
-  }
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -727,17 +670,14 @@
     .hover\:border-slate-600:hover {
       border-color: var(--color-slate-600);
     }
+    .hover\:border-w-blue:hover {
+      border-color: var(--color-w-blue);
+    }
     .hover\:border-w-blue-200:hover {
       border-color: var(--color-w-blue-200);
     }
-    .hover\:border-w-blue-500:hover {
-      border-color: var(--color-w-blue-500);
-    }
     .hover\:border-w-green-500:hover {
       border-color: var(--color-w-green-500);
-    }
-    .hover\:bg-blue-50:hover {
-      background-color: var(--color-blue-50);
     }
     .hover\:bg-neutral-50:hover {
       background-color: var(--color-neutral-50);
@@ -751,11 +691,14 @@
     .hover\:bg-slate-800:hover {
       background-color: var(--color-slate-800);
     }
+    .hover\:bg-w-blue-50:hover {
+      background-color: var(--color-w-blue-50);
+    }
+    .hover\:bg-w-blue-100:hover {
+      background-color: var(--color-w-blue-100);
+    }
     .hover\:bg-w-green-50:hover {
       background-color: var(--color-w-green-50);
-    }
-    .hover\:bg-w-grey-50:hover {
-      background-color: var(--color-w-grey-50);
     }
     .hover\:bg-w-grey-200:hover {
       background-color: var(--color-w-grey-200);
@@ -848,9 +791,6 @@
     }
     .sm\:gap-2 {
       gap: calc(var(--spacing) * 2);
-    }
-    .sm\:gap-4 {
-      gap: calc(var(--spacing) * 4);
     }
     .sm\:rounded-full {
       border-radius: calc(infinity * 1px);
