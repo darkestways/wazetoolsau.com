@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.10.08.01
+// @version         2026.10.10.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -106,6 +106,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.10.06.01': '<b>Bug Fix(es):</b><ul><li>Correctly show/hide City Seeding icons on address updates</li></ul>',
     '2026.10.06.02': '<b>Bug Fix(es):</b><ul><li>Correctly show/hide City Seeding icons on missing address</li></ul>',
     '2026.10.08.01': '<b>Change(s):</b><ul><li>Migrate script and lib to GitHub Pages and assets to new location</li></ul>',
+    '2026.10.10.01': '<b>Change(s):</b><ul><li>Update script homepage URL in Discord message</li></ul>',
 };
 
 // Var declaration
@@ -113,7 +114,7 @@ const SCRIPT_NAME = GM_info.script.name;
 const SCRIPT_VERSION = GM_info.script.version;
 const SCRIPT_ID = 'wme-send-to-discord-reloaded';
 const SCRIPT_SHORTNAME = 'WME-STD';
-const SCRIPT_URL = GM_info.script.downloadURL;
+const SCRIPT_URL = GM_info.script.homepage;
 const AUTHOR_URL = "https://www.waze.com/discuss/u/DarkestWays/summary";
 const WME_HOSTS = {
     beta: 'beta.waze.com',
