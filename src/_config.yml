@@ -13,3 +13,6 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - assets/css/app.css
+
+include:
+  - .well-known/appspecific/com.chrome.devtools.json
