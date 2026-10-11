@@ -110,5 +110,21 @@ Here are some screenshots of the script in action.
             </div>
         </div>
     </li>
+    <li class="mb-6"> Regenerate Road Shields Requests
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4 mt-4">
+            <div class="grid gap-4">
+                <img class="screenshot" src="{{ '/wme-scripts/send-to-discord/images/feat-shields-alt-streets-1.jpg' | relative_url }}" alt="Road Shields with Alt Streets and label" >
+                <img class="screenshot" src="{{ '/wme-scripts/send-to-discord/images/feat-shields-alt-streets-2.jpg' | relative_url }}" alt="Road Shields with Alt Streets and no label" >
+            </div>
+            <div class="grid gap-4">
+                <img class="screenshot" src="{{ '/wme-scripts/send-to-discord/images/feat-shields-new-street-1.jpg' | relative_url }}" alt="Road Shields with New Street and label" >
+                <img class="screenshot" src="{{ '/wme-scripts/send-to-discord/images/feat-shields-new-street-2.jpg' | relative_url }}" alt="Road Shields with New Street and no label" >
+            </div>
+            <div class="grid gap-4">
+                <img class="screenshot" src="{{ '/wme-scripts/send-to-discord/images/feat-shields-new-street-with-alt-1.jpg' | relative_url }}" alt="Road Shields with New Street and Alt Streets and label" >
+                <img class="screenshot" src="{{ '/wme-scripts/send-to-discord/images/feat-shields-new-street-with-alt-2.jpg' | relative_url }}" alt="Road Shields with New Street and Alt Streets and no label" >
+            </div>
+        </div>
+    </li>
 </ul>
 </div>

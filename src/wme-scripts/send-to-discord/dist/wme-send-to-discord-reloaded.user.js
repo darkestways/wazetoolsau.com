@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.10.10.01
+// @version         2026.10.12.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -107,6 +107,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.10.06.02': '<b>Bug Fix(es):</b><ul><li>Correctly show/hide City Seeding icons on missing address</li></ul>',
     '2026.10.08.01': '<b>Change(s):</b><ul><li>Migrate script and lib to GitHub Pages and assets to new location</li></ul>',
     '2026.10.10.01': '<b>Change(s):</b><ul><li>Update script homepage URL in Discord message</li></ul>',
+    '2026.10.12.01': "<b>New Feature(s):</b><ul><li>Regenerate Road Shields Request - For segments, if a user's rank is below the required rank for generating Shields, a request can be sent to relevant channels</li></ul>",
 };
 
 // Var declaration
@@ -139,7 +140,7 @@ const FEATURE_EDITOR_SELECTORS = {
 const EDIT_SECTION_SELECTORS = {
     lock_levels: 'div.lock-edit-view',
     closures: 'div.closures-list',
-    alt_streets_label: 'div.alt-streets-control > wz-label',
+    alt_streets_label: 'div.alt-streets-control wz-label',
     map_comment_header: 'div.map-comment-feature-editor > wz-section-header',
 };
 const WME_ROAD_TYPES = {
@@ -207,6 +208,7 @@ const ACTIONS = {
     hazard: "Permanent-Hazard",
     sat_images: "New-Satellite-Image",
     city_seeding: "City-Seeding",
+    shields: "Road-Shields",
 };
 const ACTION_LOCALES = {};
 const ACTION_MIN_ZOOM = {
@@ -214,6 +216,7 @@ const ACTION_MIN_ZOOM = {
     [ACTIONS.hazard]: 20, // Better visibility for hazards at zoom level 20
     [ACTIONS.sat_images]: 15, // Better visibility for satellite images at zoom level 15
     [ACTIONS.city_seeding]: 16, // Street Segments can only be selected at zoom level 16 or higher
+    [ACTIONS.shields]: 16, // Street Segments can only be selected at zoom level 16 or higher
 };
 const SAT_IMAGES_REASONS = {
     reason_a: "Sat_Img_Reason_A",
@@ -248,14 +251,17 @@ const KEYS_IDS = {
     WMESTDServer: "WMESTDServer",
     WMESTDLanguage: "WMESTDLanguage",
     WMESTDChannel: "WMESTDChannel", // Never used?
-    WMESTDLock: "WMESTDLock",
-    WMESTDRequestModal: "WMESTDRequestModal",
     WMESTDLockContainer: "WMESTDLockContainer",
+    WMESTDLock: "WMESTDLock",
+    WMESTDUnlock: "WMESTDUnlock",
+    WMESTDRequestModal: "WMESTDRequestModal",
     WMESTDClosures: "WMESTDClosures",
     WMESTDValidation: "WMESTDValidation",
     WMESTDPHazard: "WMESTDPHazard",
     WMESTDSatImages: "WMESTDSatImages",
-    WMESTDCitySeedingContainer: "WMESTDCitySeedingContainer",
+    WMESTDAltStreetsLabelContainer: "WMESTDAltStreetsLabelContainer",
+    WMESTDCitySeeding: "WMESTDCitySeeding",
+    WMESTDShields: "WMESTDShields",
     WMESTDSettings: "WMESTDSettings",
     WMESTDDebug: "WMESTDDebug",
     WMESTDVersion: "WMESTDVersion",
@@ -291,6 +297,7 @@ const I_PH = [
 ];
 const I_SAT_VIEW = `<button id="${KEYS_IDS.WMESTDIconPrefix}-${ACTIONS.sat_images}" class="${ACTIONS.sat_images}" style="border:none; background-color: transparent;" title="Ask for ${ACTIONS.sat_images}"><i class="fa fas fa-satellite" style="color:#105AFC; font-size: ${ICON_HEIGHT};"></i></button>`;
 const I_CITY_SEEDING = `<button id="${KEYS_IDS.WMESTDIconPrefix}-${ACTIONS.city_seeding}" class="${ACTIONS.city_seeding}" style="border:none; background-color: transparent;" title="Ask for ${ACTIONS.city_seeding}"><i class="fa fas fa-seedling" style="color:#8F4204; font-size: ${ICON_HEIGHT};"></i></button>`;
+const I_SHIELDS = `<button id="${KEYS_IDS.WMESTDIconPrefix}-${ACTIONS.shields}" class="${ACTIONS.shields}" style="border:none; background-color: transparent;" title="Ask for ${ACTIONS.shields}"><i class="fa fas fa-shield-alt" style="color:#04BB07; font-size: ${ICON_HEIGHT};"></i></button>`;
 
 const I_SETTINGS= `<img id="${KEYS_IDS.WMESTDIconPrefix}-${KEYS_IDS.WMESTDSettings}" title="${SCRIPT_NAME} (${SCRIPT_VERSION}) ${ACTIONS.settings}" alt="${SCRIPT_NAME} ${ACTIONS.settings} icon" style="height: ${ICON_HEIGHT};" src="${ICON_SRC.discord.src}" />`;
 // const I_VALIDATION = `<button id="${KEYS_IDS.WMESTDIconPrefix}-${ACTIONS.validation}" class="${ACTIONS.validation}" style="border:none; background-color: transparent;"     title="Ask for ${ACTIONS.validation}"        ><i class="fa fa-check"  style="color:#000000; font-size: ${ICON_HEIGHT};"></i></button>`;
@@ -556,6 +563,7 @@ function setupActionLocales() {
     ACTION_LOCALES[ACTIONS.hazard] = translationsInfo[43]; // Permanent Hazard
     ACTION_LOCALES[ACTIONS.sat_images] = translationsInfo[76]; // New Satellite Imagery
     ACTION_LOCALES[ACTIONS.city_seeding] = translationsInfo[77]; // New City Seeding
+    ACTION_LOCALES[ACTIONS.shields] = translationsInfo[101]; // New Shields
 
     LOG.info("Action locales set up");
 }
@@ -929,8 +937,16 @@ function getRequiredRankForSeedingCities() {
 }
 
 /**
+ * Returns the required rank for shields based on the country-specific lock levels.
+ * @return {*|number}
+ */
+function getRequiredRankForShields() {
+    return COUNTRY_LOCKS_DB[LS.get(KEYS_IDS.WMESTDCountry)]?.shields ?? 4; // Default to L4 if not found
+}
+
+/**
  * Returns the required rank for satellite imagery requests based on the country-specific lock levels.
- * @return {string|number|*}
+ * @return {*|number}
  */
 function getRequiredRankForSatImages() {
     return COUNTRY_LOCKS_DB[LS.get(KEYS_IDS.WMESTDCountry)]?.sat_images ?? 5; // Default to L5 if not found
@@ -1084,6 +1100,7 @@ function getPermalinkCleaned(iconAction) {
         [ACTIONS.hazard].includes(iconAction) ? 1 : 0, // If the action is to add permanent hazard, ensure the required rank is at least 1 (L2)
         [ACTIONS.city_seeding].includes(iconAction) ? 3 : 0, // If the action is to seed new cities, ensure the required rank is at least 3 (L4)
         [ACTIONS.sat_images].includes(iconAction) ? 4 : 0, // If the action is to request new satellite imagery, ensure the required rank is at least 4 (L5)
+        [ACTIONS.shields].includes(iconAction) ? 3 : 0 // If the action is to request new shields, ensure the required rank is at least 3 (L4)
     ) + 1; // Normalised index to 1-indexed for display purposes (L1-L6)
 
     let PL = `${urlPrefix}${currentLocCoords}${zoomLevel}${selectionTypeParam}${selectedIds.join(",")}`;
@@ -1832,9 +1849,10 @@ async function constructRequest(iconAction) {
             let phRankLevel = requestedPHType ? getRequiredRankForPH(requestedPHType) : 0;
             let citySeedingRankLevel = citySeedingName ? getRequiredRankForSeedingCities() : 0;
             let satImageRankLevel = satImagesFreshness ? getRequiredRankForSatImages() : 0;
-            let requiredRankLevel = Math.max(lockLevel, phRankLevel, citySeedingRankLevel, satImageRankLevel, requiredRank);
+            let shieldsRankLevel = [ACTIONS.shields].includes(iconAction) ? getRequiredRankForShields() : 0;
+            let requiredRankLevel = Math.max(lockLevel, phRankLevel, citySeedingRankLevel, satImageRankLevel, shieldsRankLevel, requiredRank);
 
-            LOG.debug(`Computed required rank level for preview: ${requiredRankLevel} (Lock: ${lockLevel}, PH: ${phRankLevel}, City Seeding: ${citySeedingRankLevel}, Sat Image: ${satImageRankLevel}, Base Required: ${requiredRank})`);
+            LOG.debug(`Computed required rank level for preview: ${requiredRankLevel} (Lock: ${lockLevel}, PH: ${phRankLevel}, City Seeding: ${citySeedingRankLevel}, Sat Image: ${satImageRankLevel}, Shields: ${shieldsRankLevel}, Base Required: ${requiredRank})`);
             LOG.debug(`Preview details: reason=${reason}, details=${details}, lockLevel=${lockLevel}, closureStart=${closureStart}, closureEnd=${closureEnd}, closureDirection=${closureDirection}, mapNoteConfirmed=${mapNoteConfirmed}, requestedPHType=${requestedPHType}, citySeedingName=${citySeedingName}, satImagesFreshness=${satImagesFreshness}, satImagesCity=${satImagesCity}`);
 
             let previewLines = [
@@ -1895,6 +1913,12 @@ async function constructRequest(iconAction) {
         case ACTIONS.sat_images: {
             channel = CHANNELS.sat_images;
             requiredRank = getRequiredRankForSatImages();
+            break;
+        }
+
+        case ACTIONS.shields: {
+            channel = CHANNELS.editing;
+            requiredRank = getRequiredRankForShields();
             break;
         }
 
@@ -2122,6 +2146,7 @@ async function setupEditPanelActionIcons() {
                 _addClosureIcons(panel.querySelector(EDIT_SECTION_SELECTORS.closures));
                 _addPHIcons(panel.querySelector(EDIT_SECTION_SELECTORS.lock_levels));
                 _addCitySeedingIcons(panel.querySelector(EDIT_SECTION_SELECTORS.alt_streets_label));
+                _addShieldsIcons(panel.querySelector(EDIT_SECTION_SELECTORS.alt_streets_label));
             }
         },
         [FEATURES.map_comment]: {
@@ -2157,13 +2182,29 @@ async function setupEditPanelActionIcons() {
         LOG.debug("\tAdding lock container after the lock levels section.");
         $(editPanel.querySelector(EDIT_SECTION_SELECTORS.lock_levels)).after(`<div id="${KEYS_IDS.WMESTDLockContainer}" style="display: flex; justify-content: flex-start; align-items: center; gap: 0.5rem; margin: 0.5rem 0 0.5rem 0;"></div>`);
 
-        // Reset/Unwrap City Seeding container
-        const $citySeedingContainerDiv = $(`#${KEYS_IDS.WMESTDCitySeedingContainer}`);
-        if ($citySeedingContainerDiv.length > 0) {
-            LOG.debug("\tCity Seeding container found; Unwrapping it.");
-            $(editPanel.querySelector(EDIT_SECTION_SELECTORS.alt_streets_label)).unwrap(`#${KEYS_IDS.WMESTDCitySeedingContainer}`); // Unwrap the container from the alt streets label section
+        // Reset/Unwrap Alt Streets Label container
+        const $altStreetsLabelContainerDiv = $(`#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
+        const $altStreetsLabel = $(editPanel.querySelector(EDIT_SECTION_SELECTORS.alt_streets_label));
+        if ($altStreetsLabelContainerDiv.length > 0) {
+            LOG.debug("\tAlt Streets Label container found; Unwrapping it.");
+            $altStreetsLabel.unwrap(`#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`); // Unwrap the container from the alt streets label section
         } else {
-            LOG.debug("\tCity Seeding container not found; No need to unwrap it.");
+            LOG.debug("\tAlt Streets Label container not found; No need to unwrap it.");
+        }
+        // Now wrap the alt streets label again; We can only add this if a segment is selected, since we need to check if it has alternate street IDs or not.
+        try {
+            LOG.debug("\tWrapping Alt Streets Label container.");
+            const segment = wmeSdk.DataModel.Segments.getById({segmentId: selectedFeatures.ids[0]});
+            let containerStyle = "display: flex; align-items: center; justify-content: flex-end;";
+            if (!$altStreetsLabel.is(':visible') && !segment.alternateStreetIds?.length) { // If the alt streets label is not visible and there are no alternate street IDs, we need to add a negative margin to the container to avoid extra space.
+                LOG.debug("Alt Streets Label is not visible and there are no alternate street IDs; Adding negative margin to the container.");
+                containerStyle += ' margin-bottom: -2rem;';
+            } else {
+                containerStyle += ' margin-bottom: 0.5rem;';
+            }
+            $altStreetsLabel.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`);
+        } catch (e) {
+            LOG.error(`Error while wrapping Alt Streets Label container: ${e}`);
         }
 
         LOG.debug("Edit panel containers have been reset, if present.");
@@ -2250,6 +2291,7 @@ async function setupEditPanelActionIcons() {
             const segment = wmeSdk.DataModel.Segments.getById({segmentId: selectedFeatures.ids[0]});
             const primaryStreet = segment.primaryStreetId ? wmeSdk.DataModel.Streets.getById({streetId: segment.primaryStreetId}) : null;
             const city = primaryStreet && primaryStreet.cityId ? wmeSdk.DataModel.Cities.getById({cityId: primaryStreet.cityId}) : null;
+            const $element = $(element);
 
             if (selectedFeatures.ids.length !== 1 || userRank >= getRequiredRankForSeedingCities()) {
                 LOG.debug("More than one segment selected or user rank is at or above the required rank for City Seeding; Not adding City Seeding icons.");
@@ -2268,12 +2310,57 @@ async function setupEditPanelActionIcons() {
                 return;
             }
 
-            LOG.debug("Adding City Seeding icons to the edit panel, next to existing Add alternate address button, enclosing them in a flex container");
-            $(element).wrap(`<div id="${KEYS_IDS.WMESTDCitySeedingContainer}" style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: -2rem"></div>`)
-                .after($(I_CITY_SEEDING).data({"affectedObject": segment, "affectedObjectType": FEATURES.segment}));
+            const $altStreetsLabelContainerDiv = $element.parent(`div#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
+            const $iconContainer = $(`<div id="${KEYS_IDS.WMESTDCitySeeding}" style="display: inline-block;"></div>`);
+            const $citySeedingIcon = $(I_CITY_SEEDING).data({"affectedObject": segment, "affectedObjectType": FEATURES.segment});
+            let containerStyle = `display: flex; align-items: center; justify-content: flex-end; margin-bottom: ${$element.is(':visible') ? '0.5rem' : '-2rem'};`;
+            if ($altStreetsLabelContainerDiv.length === 0) {
+                LOG.debug(`Alt Streets Label container not found; Adding City Seeding icons directly after the alt streets label section, enclosing it in a flex container.`);
+                $(`#${KEYS_IDS.WMESTDCitySeeding}`).remove();
+                $iconContainer.append($citySeedingIcon);
+                $element.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`).after($iconContainer);
+            } else {
+                LOG.debug(`Alt Streets Label container found; Adding City Seeding icons inside the container.`);
+                $altStreetsLabelContainerDiv.append($citySeedingIcon);
+            }
             LOG.debug('City Seeding icons added');
         } catch (e) {
             LOG.error(`Could not add City Seeding icons. ${e}`);
+        }
+    }
+
+    function _addShieldsIcons(element) {
+        // Don't add Shields button, if:
+        // current editor's rank is at or above the required rank for Shields.
+        if (userRank >= getRequiredRankForShields()) {
+            LOG.debug("User rank is at or above the required rank for Shields; Not adding Shields icons.");
+            return;
+        }
+        try {
+            const segment = wmeSdk.DataModel.Segments.getById({segmentId: selectedFeatures.ids[0]});
+            const $altStreetsLabelContainerDiv = $(element).parent(`div#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
+            const $iconContainer = $(`<div id="${KEYS_IDS.WMESTDShields}" style="display: inline-block;"></div>`);
+            const $shieldsIcon = $(I_SHIELDS).data({"affectedObject": segment, "affectedObjectType": FEATURES.segment});
+            const $element = $(element);
+            let containerStyle = "display: flex; align-items: center; justify-content: flex-end;";
+            if (!$element.is(':visible') && !segment.alternateStreetIds?.length) { // If the alt streets label is not visible and there are no alternate street IDs, we need to add a negative margin to the container to avoid extra space.
+                LOG.debug("Alt Streets Label is not visible and there are no alternate street IDs; Adding negative margin to the container.");
+                containerStyle += ' margin-bottom: -2rem;';
+            } else {
+                containerStyle += ' margin-bottom: 0.5rem;';
+            }
+            if ($altStreetsLabelContainerDiv.length === 0) {
+                LOG.debug(`Alt Streets Label container not found; Adding Shields icons directly after the alt streets label section, enclosing it in a flex container.`);
+                $(`#${KEYS_IDS.WMESTDShields}`).remove();
+                $iconContainer.append($shieldsIcon);
+                $element.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`).after($iconContainer);
+            } else {
+                LOG.debug(`Alt Streets Label container found; Adding Shields icons inside the container.`);
+                $altStreetsLabelContainerDiv.append($shieldsIcon);
+            }
+            LOG.debug('Shields icons added');
+        } catch (e) {
+            LOG.error(`Could not add Shields icons. ${e}`);
         }
     }
 
@@ -2386,7 +2473,7 @@ async function setupEditPanelActionIcons() {
 async function segmentChangeHandler({affectedObject}) {
     try {
         const segment = wmeSdk.DataModel.Segments.getById({segmentId: affectedObject.objectId});
-        let $citySeedingContainer = $(`#${KEYS_IDS.WMESTDCitySeedingContainer}`);
+        let $citySeedingContainer = $(`#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
 
         function toggleCitySeedingIcons(show) {
             // Break early if there is no container present for some reason
@@ -2395,8 +2482,9 @@ async function segmentChangeHandler({affectedObject}) {
                 return;
             }
 
-            $citySeedingContainer.find(`button[id|="${KEYS_IDS.WMESTDIconPrefix}"]`).toggle(show);
-            $citySeedingContainer.css('margin-bottom', show ? '-2rem' : 'unset'); // Reset margin-bottom to default; if !show
+            const $altStreetsLabelVisible = $citySeedingContainer.find('wz-label').is(':visible');
+            $citySeedingContainer.find(`button[id="${KEYS_IDS.WMESTDIconPrefix}-${ACTIONS.city_seeding}"]`).toggle(show);
+            $citySeedingContainer.css('margin-bottom', show ? `${$altStreetsLabelVisible ? '0.5rem' : '-2rem'}` : '0.5rem'); // Reset margin-bottom to default; if !show
         }
 
         // Break early if a segment isn't found
