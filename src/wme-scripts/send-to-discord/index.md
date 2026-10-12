@@ -21,7 +21,7 @@ which was itself based on the code from <a class="hover:text-w-blue-600 hover:te
 <div>
 <h3 class="text-2xl sm:text-2xl font-medium text-w-grey-900">Features</h3>
 <p class="text-w-grey-600 mt-4 mb-4">
-This script allows editors to send (Un)lock / Closures / Open / PH / City-Seeding / Sat‑Imagery requests to their community's Discord servers, directly from WME.
+This script allows editors to send (Un)lock / Closures / Open / PH / City-Seeding / Sat‑Imagery / Road-Shields-Regen requests to their community's Discord servers, directly from WME.
 Requests that require user input for details, a modal is shown for these with appropriate fields. 
 For some requests, the script will also show validation errors in the modal if the request is not valid. 
 The script will also show a success message if the request is sent successfully.
