@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.10.12.01
+// @version         2026.10.17.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -108,6 +108,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.10.08.01': '<b>Change(s):</b><ul><li>Migrate script and lib to GitHub Pages and assets to new location</li></ul>',
     '2026.10.10.01': '<b>Change(s):</b><ul><li>Update script homepage URL in Discord message</li></ul>',
     '2026.10.12.01': "<b>New Feature(s):</b><ul><li>Regenerate Road Shields Request - For segments, if a user's rank is below the required rank for generating Shields, a request can be sent to relevant channels</li></ul>",
+    '2026.10.17.01': "<b>Change(s):</b><ul><li>Add link to script homepage under settings tab</li></ul>",
 };
 
 // Var declaration
@@ -754,9 +755,14 @@ async function loadSettingsTab() {
     }*/
 
     return wmeSdk.Sidebar.registerScriptTab().then(({tabLabel, tabPane}) => {
+        // noinspection CssUnresolvedCustomProperty
         const settingsHtml = `
 <div id="${SCRIPT_ID}-settings" style="padding: 0 1rem;">
-    <h6>${SCRIPT_NAME}</h6>
+    <h6>
+        <a href="https://wazetoolsau.com/wme-scripts/send-to-discord/" target="_blank" style="margin: calc(var(--space-always-xs, 8px) * -1) calc(var(--space-always-xxs, 4px) * -1)">
+            <wz-button color="text" size="md" title="Visit ${SCRIPT_NAME} Homepage">${SCRIPT_NAME}</wz-button>
+        </a>
+    </h6>
     <span>Current Version: <b>${SCRIPT_VERSION}</b></span>
 
     <div style="margin-top: 1rem;">
