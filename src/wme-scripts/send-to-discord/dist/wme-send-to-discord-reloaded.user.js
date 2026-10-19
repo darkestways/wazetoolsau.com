@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.10.17.01
+// @version         2026.10.19.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -109,6 +109,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.10.10.01': '<b>Change(s):</b><ul><li>Update script homepage URL in Discord message</li></ul>',
     '2026.10.12.01': "<b>New Feature(s):</b><ul><li>Regenerate Road Shields Request - For segments, if a user's rank is below the required rank for generating Shields, a request can be sent to relevant channels</li></ul>",
     '2026.10.17.01': "<b>Change(s):</b><ul><li>Add link to script homepage under settings tab</li></ul>",
+    '2026.10.19.01': "<b>Change(s):</b><ul><li>Add compatibility with <a href=\"https://greasyfork.org/scripts/599569\">WME Studio script</a></li></ul>",
 };
 
 // Var declaration
@@ -760,7 +761,7 @@ async function loadSettingsTab() {
 <div id="${SCRIPT_ID}-settings" style="padding: 0 1rem;">
     <h6>
         <a href="https://wazetoolsau.com/wme-scripts/send-to-discord/" target="_blank" style="margin: calc(var(--space-always-xs, 8px) * -1) calc(var(--space-always-xxs, 4px) * -1)">
-            <wz-button color="text" size="md" title="Visit ${SCRIPT_NAME} Homepage">${SCRIPT_NAME}</wz-button>
+            <wz-button color="secondary" size="md" title="Visit ${SCRIPT_NAME} Homepage">${SCRIPT_NAME}</wz-button>
         </a>
     </h6>
     <span>Current Version: <b>${SCRIPT_VERSION}</b></span>
@@ -809,6 +810,10 @@ async function loadSettingsTab() {
 
         // Add all elements to the tab
         tabLabel.innerHTML = TRUSTED_TYPE_POLICY.createHTML(I_SETTINGS);
+        tabLabel.dataset.scriptName = SCRIPT_NAME;
+        tabLabel.dataset.scriptVersion = SCRIPT_VERSION;
+        tabLabel.dataset.iconUrl = ICON_SRC.discord.src;
+        tabLabel.dataset.userscriptUrl = SCRIPT_URL;
         tabPane.innerHTML = TRUSTED_TYPE_POLICY.createHTML(settingsHtml);
 
         // If previously selected country doesn't have states, set the state to "No State".
