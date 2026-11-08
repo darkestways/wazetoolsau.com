@@ -6,7 +6,7 @@
     "dev:css": "tailwindcss -i ./src/assets/css/app.css -o ./src/assets/css/site.css --watch=always"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.13",
+    "@tailwindcss/cli": "^4.3.4",
     "tailwindcss": "^4.1.13"
   }
 }
