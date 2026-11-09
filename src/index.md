@@ -69,5 +69,11 @@ title: WazeTools AU by DarkestWays
             <p class="text-w-grey-600 text-sm leading-relaxed">Prevent WME links from changing your layer settings.</p>
             <p class="mt-auto pt-6 text-slate-400 text-sm leading-relaxed">Author: brandon28au</p>
         </a>
+        <a href="https://greasyfork.org/en/scripts/602578" referrerpolicy="no-referrer" rel="noopener noreferrer" target="_blank" class="group script-card">
+            <img src="{{ '/assets/images/greasyfork-blacklogo-96.png' | relative_url }}" alt="WME Reminders icon" class="script-card-icon">
+            <h3 class="text-xl font-medium mb-1">WME Reminders</h3>
+            <p class="text-w-grey-600 text-sm leading-relaxed">Location-based reminders for Waze Map Editor, with Map Note linking and cross-machine sync.</p>
+            <p class="mt-auto pt-6 text-slate-400 text-sm leading-relaxed">Author: PMaxDino</p>
+        </a>
     </div>
 </div>
