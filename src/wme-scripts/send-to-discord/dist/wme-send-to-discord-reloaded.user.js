@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.10.19.01
+// @version         2026.11.23.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -40,6 +40,13 @@
 /* global SERVER_DB */
 /* global trustedTypes */
 /* eslint-enable no-redeclare */
+
+/**
+ * Common WME SDK typings for reference:
+ * @typedef Street
+ * @typedef Segment
+ */
+'use strict';
 
 /**
  * This version of the script is based on last available version of WME Send to Discord (2024.01.14.01), available from
@@ -110,6 +117,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.10.12.01': "<b>New Feature(s):</b><ul><li>Regenerate Road Shields Request - For segments, if a user's rank is below the required rank for generating Shields, a request can be sent to relevant channels</li></ul>",
     '2026.10.17.01': "<b>Change(s):</b><ul><li>Add link to script homepage under settings tab</li></ul>",
     '2026.10.19.01': "<b>Change(s):</b><ul><li>Add compatibility with <a href=\"https://greasyfork.org/scripts/599569\">WME Studio script</a></li></ul>",
+    '2026.11.23.01': "<b>New Feature(s):</b><ul><li>Show common street name for selected segments in Discord messages</li></ul><b>Bug Fix(es):</b><ul><li>Action icons for Map Comments were not showing because WME changed the HTML structure</li><li>City Seeding icon padding was incorrect when multiple segments were selected</li></ul>",
 };
 
 // Var declaration
@@ -135,7 +143,7 @@ const FEATURES = {
 const FEATURE_EDITOR_SELECTORS = {
     segment: 'div.segment-feature-editor',
     venue: 'div.venue-feature-editor',
-    map_comment: 'div.map-comment-feature-editor',
+    map_comment: 'div[class^="featureEditor"]',
     // big_junction: 'div.big-junction sidebar-column',
     // permanent_hazard: 'div.permanent-hazard-feature-editor'
 };
@@ -143,7 +151,7 @@ const EDIT_SECTION_SELECTORS = {
     lock_levels: 'div.lock-edit-view',
     closures: 'div.closures-list',
     alt_streets_label: 'div.alt-streets-control wz-label',
-    map_comment_header: 'div.map-comment-feature-editor > wz-section-header',
+    map_comment_header: 'div[class^="featureEditor"] > wz-section-header',
 };
 const WME_ROAD_TYPES = {
     ALLEY: 22,
@@ -846,6 +854,73 @@ async function loadSettingsTab() {
 }
 
 /**
+ * Returns the segment corresponding to the given segment ID, or null if not found.
+ * @param {number} segmentId
+ * @return {Segment|null}
+ */
+function getSegment(segmentId) {
+    try {
+        return wmeSdk.DataModel.Segments.getById({segmentId: segmentId});
+    } catch (e) {
+        LOG.error(`Error retrieving segment with ID ${segmentId}: ${e}`);
+        return null;
+    }
+}
+
+/**
+ * Returns an array of segments corresponding to the given segment IDs.
+ * @param {number[]} segmentIds
+ * @return {Segment[]}
+ */
+function getSegments(segmentIds) {
+    const segments = [];
+    for (const segmentId of segmentIds) {
+        const segment = getSegment(segmentId);
+        if (segment) {
+            segments.push(segment);
+        }
+    }
+    return segments;
+}
+
+/**
+ * Returns an array of all alternate streets for the given segments.
+ * @param {Segment[]} segments
+ * @return {Street[]}
+ */
+function getAllAlternateStreets(segments) {
+    const alternateStreets = [];
+    for (const segment of segments) {
+        const alternateStreetIds = segment.alternateStreetIds ?? [];
+        const streets = alternateStreetIds.map(streetId => wmeSdk.DataModel.Streets.getById({ streetId })).filter(Boolean);
+        alternateStreets.push(...streets);
+    }
+    return alternateStreets;
+}
+
+/**
+ * Returns the most common street name among the given segments, or null if no common name is found.
+ * @param {Segment[]} segments
+ * @return {null|string}
+ */
+function getCommonStreetName(segments) {
+    if (!segments || segments.length === 0) {
+        return null;
+    }
+
+    // Old Code
+    const nameCounts = new Map();
+    for (const seg of segments) {
+        const streetIds = [seg.primaryStreetId, ...(seg.alternateStreetIds ?? [])].filter(x => x !== null);
+        const streetNames = new Set(streetIds.map(streetId => wmeSdk.DataModel.Streets.getById({ streetId })?.name).filter(Boolean));
+        for (const streetName of streetNames) nameCounts.set(streetName, (nameCounts.get(streetName) ?? 0) + 1);
+    }
+
+    const [mostCommonName, count] = [...nameCounts.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
+    return `${count === segments.length ? mostCommonName : `${mostCommonName} and others`}`.trim();
+}
+
+/**
  * Finds the closest on-screen drivable segment to the given point, ignoring PLR and PR segments if the options are set
  * @function findClosestSegment
  * @param {Point|Polygon} featureGeometry The given point or polygon to which find the closest segment.
@@ -998,6 +1073,7 @@ function getPermalinkCleaned(iconAction) {
     let countryName;
     let selectedIds;
     let selectionTypeL10n;
+    let selectionName;
     let selectionCount;
     let selectionTypeParam;
     let selectionAddress;
@@ -1017,7 +1093,6 @@ function getPermalinkCleaned(iconAction) {
 
     /**
      * Recommended Lock. Gets the previously defined by the community lock level for the segment `roadType`.
-     * @interface Segment
      * @param {Segment} segment One of selected segment(s) from WME SDK.
      * @returns {number} `ShouldBeLockedAt` as stated in the `RoadType` segment.
      */
@@ -1064,10 +1139,11 @@ function getPermalinkCleaned(iconAction) {
     switch (selectedFeatures.objectType) {
         case FEATURES.segment: {
             selectionTypeL10n = translationsInfo[28]; // segment
+            selectionName = getCommonStreetName(getSegments(selectedIds)) || "";
             selectionTypeParam = "&segments=";
             // For each selected segment
-            for (const segmentId of selectedFeatures.ids) {
-                const segment = wmeSdk.DataModel.Segments.getById({segmentId: segmentId});
+            for (const segmentId of selectedIds) {
+                const segment = getSegment(segmentId);
                 selectionAddress = wmeSdk.DataModel.Segments.getAddress({segmentId: segmentId});
                 hasUnsavedChanges ||= segmentId < 0;
                 requiredRanks.push(segment.lockRank ?? segment.rank); // `lockRank` is user applied lock level, `rank` is the Waze's default lock level for the segment.
@@ -1079,7 +1155,8 @@ function getPermalinkCleaned(iconAction) {
         case FEATURES.venue: {
             const venue = wmeSdk.DataModel.Venues.getById({venueId: selectedIds[0]}); // Could return null if the venue is not found, but we assume it exists since it was selected.
             selectionAddress = wmeSdk.DataModel.Venues.getAddress({venueId: selectedIds[0]});
-            selectionTypeL10n = `${venue.isResidential ? `${translationsInfo[70]} `: ""}${translationsInfo[23]}${venue.name ? `: (${venue.name})` : ""}`; // (residential)?venue(: name)?
+            selectionTypeL10n = `${venue.isResidential ? `${translationsInfo[70]} `: ""}${translationsInfo[23]}`; // (residential)?venue(: name)?
+            selectionName = venue.name || "";
             selectionTypeParam = "&venues=";
             zoomLevel = `&zoomLevel=${Math.max(currentZoomLevel, ACTION_MIN_ZOOM[FEATURES.venue])}`;
             requiredRanks.push(venue.lockRank);
@@ -1090,7 +1167,8 @@ function getPermalinkCleaned(iconAction) {
             const mapComment = wmeSdk.DataModel.MapComments.getById({mapCommentId: selectedIds[0]});
             const closestSegment = findClosestSegment(mapComment.geometry, true, true);
             selectionAddress = closestSegment ? wmeSdk.DataModel.Segments.getAddress({segmentId: closestSegment.id}) : null; // Map Comment has only geometry (Point|Polygon).
-            selectionTypeL10n = `${translationsInfo[26]}${mapComment.subject ? `: (${mapComment.subject})` : ""}` // map comment: subject
+            selectionTypeL10n = translationsInfo[26]; // map comment
+            selectionName = mapComment.subject || "";
             selectionTypeParam = "&mapComments=";
             requiredRanks.push(mapComment.lockRank);
             LOG.debug(mapComment);
@@ -1115,13 +1193,14 @@ function getPermalinkCleaned(iconAction) {
     ) + 1; // Normalised index to 1-indexed for display purposes (L1-L6)
 
     let PL = `${urlPrefix}${currentLocCoords}${zoomLevel}${selectionTypeParam}${selectedIds.join(",")}`;
+    const selectionTypeText = `${selectionCount > 1 ? `${selectionCount} ${selectionTypeL10n}${translationsInfo[29]}` : `${translationsInfo[30]} ${selectionTypeL10n}`}${selectionName ? `: ${selectionName}` : ""}`; // s or a
 
     // Return built object containing all parameters
     LOG.info('Permalink generated');
     return {
         permalink: PL,
         hasUnsavedChanges: hasUnsavedChanges,
-        selectionTypeText: selectionCount > 1 ? `${selectionCount} ${selectionTypeL10n}${translationsInfo[29]}` : `${translationsInfo[30]} ${selectionTypeL10n}`, // s or a
+        selectionTypeText: selectionTypeText,
         requiredRank: requiredRank,
         suggestedLockLevel: Math.max(...shouldBeLockedAts, shouldBeLockedAtDefault), // This is only used for Lock requests.
         cityName: cityName,
@@ -2196,24 +2275,25 @@ async function setupEditPanelActionIcons() {
         // Reset/Unwrap Alt Streets Label container
         const $altStreetsLabelContainerDiv = $(`#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
         const $altStreetsLabel = $(editPanel.querySelector(EDIT_SECTION_SELECTORS.alt_streets_label));
-        if ($altStreetsLabelContainerDiv.length > 0) {
-            LOG.debug("\tAlt Streets Label container found; Unwrapping it.");
+        if ($altStreetsLabelContainerDiv.length > 0 && $altStreetsLabel.length > 0) {
+            LOG.debug(`\tAlt Streets Label container found; Unwrapping it.`);
             $altStreetsLabel.unwrap(`#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`); // Unwrap the container from the alt streets label section
         } else {
-            LOG.debug("\tAlt Streets Label container not found; No need to unwrap it.");
+            LOG.debug(`\tAlt Streets Label container not found; No need to unwrap it.`);
         }
         // Now wrap the alt streets label again; We can only add this if a segment is selected, since we need to check if it has alternate street IDs or not.
         try {
-            LOG.debug("\tWrapping Alt Streets Label container.");
-            const segment = wmeSdk.DataModel.Segments.getById({segmentId: selectedFeatures.ids[0]});
-            let containerStyle = "display: flex; align-items: center; justify-content: flex-end;";
-            if (!$altStreetsLabel.is(':visible') && !segment.alternateStreetIds?.length) { // If the alt streets label is not visible and there are no alternate street IDs, we need to add a negative margin to the container to avoid extra space.
-                LOG.debug("Alt Streets Label is not visible and there are no alternate street IDs; Adding negative margin to the container.");
-                containerStyle += ' margin-bottom: -2rem;';
-            } else {
-                containerStyle += ' margin-bottom: 0.5rem;';
+            LOG.debug(`\tWrapping Alt Streets Label container if it is present? ${$altStreetsLabel.length > 0 ? "Yes" : "No"}.`);
+            if ($altStreetsLabel.length > 0 && selectedFeatures.objectType === FEATURES.segment) {
+                let containerStyle = "display: flex; align-items: center; justify-content: flex-end;";
+                if (!$altStreetsLabel.is(':visible') && !getAllAlternateStreets(getSegments(selectedFeatures.ids)).length) { // If the alt streets label is not visible and there are no alternate street IDs, we need to add a negative margin to the container to avoid extra space.
+                    LOG.debug("Alt Streets Label is not visible and there are no alternate street IDs; Adding negative margin to the container.");
+                    containerStyle += ' margin-bottom: -2rem;';
+                } else {
+                    containerStyle += ' margin-bottom: 0.5rem;';
+                }
+                $altStreetsLabel.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`);
             }
-            $altStreetsLabel.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`);
         } catch (e) {
             LOG.error(`Error while wrapping Alt Streets Label container: ${e}`);
         }
@@ -2255,7 +2335,7 @@ async function setupEditPanelActionIcons() {
         const $lockContainerDiv = $(element).siblings(`div#${KEYS_IDS.WMESTDLockContainer}`);
         const $iconContainer = $(`<div id="${KEYS_IDS.WMESTDPHazard}" style="display: inline-block;"></div>`);
         const $hazardIcon = $(I_PH[Math.floor(Math.random() * I_PH.length)]); // Randomly select one of the PH icons to display
-        $hazardIcon.data({"affectedObject": selectedFeatures.objectType === FEATURES.map_comment ? selectedFeature : wmeSdk.DataModel.Segments.getById({segmentId: selectedFeatures.ids[0]}), "affectedObjectType": selectedFeatures.objectType});
+        $hazardIcon.data({"affectedObject": selectedFeatures.objectType === FEATURES.map_comment ? selectedFeature : getSegment(selectedFeatures.ids[0]), "affectedObjectType": selectedFeatures.objectType});
         if ($lockContainerDiv.length === 0) {
             LOG.debug(`Lock container not found; Adding PH icons directly after the lock levels section.`);
             $(`#${KEYS_IDS.WMESTDPHazard}`).remove();
@@ -2299,7 +2379,7 @@ async function setupEditPanelActionIcons() {
         // current editor's rank is at or above the required rank for City Seeding.
 
         try {
-            const segment = wmeSdk.DataModel.Segments.getById({segmentId: selectedFeatures.ids[0]});
+            const segment = getSegment(selectedFeatures.ids[0]);
             const primaryStreet = segment.primaryStreetId ? wmeSdk.DataModel.Streets.getById({streetId: segment.primaryStreetId}) : null;
             const city = primaryStreet && primaryStreet.cityId ? wmeSdk.DataModel.Cities.getById({cityId: primaryStreet.cityId}) : null;
             const $element = $(element);
@@ -2348,7 +2428,7 @@ async function setupEditPanelActionIcons() {
             return;
         }
         try {
-            const segment = wmeSdk.DataModel.Segments.getById({segmentId: selectedFeatures.ids[0]});
+            const segment = getSegment(selectedFeatures.ids[0]);
             const $altStreetsLabelContainerDiv = $(element).parent(`div#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
             const $iconContainer = $(`<div id="${KEYS_IDS.WMESTDShields}" style="display: inline-block;"></div>`);
             const $shieldsIcon = $(I_SHIELDS).data({"affectedObject": segment, "affectedObjectType": FEATURES.segment});
@@ -2483,7 +2563,7 @@ async function setupEditPanelActionIcons() {
 
 async function segmentChangeHandler({affectedObject}) {
     try {
-        const segment = wmeSdk.DataModel.Segments.getById({segmentId: affectedObject.objectId});
+        const segment = getSegment(affectedObject.objectId);
         let $citySeedingContainer = $(`#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
 
         function toggleCitySeedingIcons(show) {
@@ -2540,7 +2620,7 @@ async function wmeUndoHandler() {
         return;
     }
 
-    const segment = wmeSdk.DataModel.Segments.getById({segmentId: selectedFeatures.ids[0]});
+    const segment = getSegment(selectedFeatures.ids[0]);
     if (!segment) {
         LOG.warn(`Segment with ID ${selectedFeatures.ids[0]} not found after undo.`);
         return;
@@ -2552,7 +2632,6 @@ async function wmeUndoHandler() {
 
 // Initialisation
 function init() {
-    'use strict';
 
     wmeSdk = getWmeSdk({scriptId: SCRIPT_ID, scriptName: SCRIPT_NAME});
 
