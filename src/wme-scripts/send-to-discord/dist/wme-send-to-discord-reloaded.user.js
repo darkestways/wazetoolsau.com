@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.11.23.01
+// @version         2026.11.25.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -21,7 +21,7 @@
 // @icon            data:image/png;base64,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
 // @homepageURL     https://wazetoolsau.com/wme-scripts/send-to-discord/
 // @downloadURL     https://wazetoolsau.com/wme-scripts/send-to-discord/dist/wme-send-to-discord-reloaded.user.js
-// @updateURL       https://wazetoolsau.com/wme-scripts/send-to-discord/dist/wme-send-to-discord-reloaded.user.js
+// @updateURL       https://wazetoolsau.com/wme-scripts/send-to-discord/dist/wme-send-to-discord-reloaded.meta.js
 // ==/UserScript==
 
 /* eslint-disable no-redeclare */
@@ -118,6 +118,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.10.17.01': "<b>Change(s):</b><ul><li>Add link to script homepage under settings tab</li></ul>",
     '2026.10.19.01': "<b>Change(s):</b><ul><li>Add compatibility with <a href=\"https://greasyfork.org/scripts/599569\">WME Studio script</a></li></ul>",
     '2026.11.23.01': "<b>New Feature(s):</b><ul><li>Show common street name for selected segments in Discord messages</li></ul><b>Bug Fix(es):</b><ul><li>Action icons for Map Comments were not showing because WME changed the HTML structure</li><li>City Seeding icon padding was incorrect when multiple segments were selected</li></ul>",
+    '2026.11.25.01': "<b>New Feature(s):</b><ul><li>Added support for monitoring for script updates</li></ul><b>Bug Fix(es):</b><ul><li>Fix issue with some icons getting duplicated when selecting segments or map comments</li></ul>",
 };
 
 // Var declaration
@@ -126,6 +127,8 @@ const SCRIPT_VERSION = GM_info.script.version;
 const SCRIPT_ID = 'wme-send-to-discord-reloaded';
 const SCRIPT_SHORTNAME = 'WME-STD';
 const SCRIPT_URL = GM_info.script.homepage;
+const SCRIPT_DOWNLOAD_URL = GM_info.script.downloadURL;
+const SCRIPT_UPDATE_URL = GM_info.script.updateURL;
 const AUTHOR_URL = "https://www.waze.com/discuss/u/DarkestWays/summary";
 const WME_HOSTS = {
     beta: 'beta.waze.com',
@@ -642,6 +645,23 @@ async function checkScriptVersion() {
     }
     else {
         LS.set(KEYS_IDS.WMESTDVersion, SCRIPT_VERSION);
+    }
+}
+
+// Set up a monitor to check for script updates using WazeWrap.Alerts.ScriptUpdateMonitor
+async function setupScriptUpdateMonitor() {
+    if (!WazeWrap.Alerts) {
+        setTimeout(setupScriptUpdateMonitor, 1000);
+        LOG.debug("WazeWrap.Alerts not ready, waiting");
+        return;
+    }
+
+    try {
+        const updateMonitor = new WazeWrap.Alerts.ScriptUpdateMonitor(SCRIPT_NAME, SCRIPT_VERSION, SCRIPT_DOWNLOAD_URL, GM_xmlhttpRequest, SCRIPT_UPDATE_URL);
+        updateMonitor.start();
+        LOG.info("Script update monitor set up");
+    } catch (error) {
+        LOG.error(`Error setting up script update monitor: ${error}`);
     }
 }
 
@@ -2260,7 +2280,7 @@ async function setupEditPanelActionIcons() {
     };
 
     function _resetEditPanelContainer(editPanel){
-        LOG.debug("Resetting various edit panel containers that we may have created previously");
+        LOG.debug("Resetting various edit panel containers that we may have created previously...");
         const $lockContainerDiv = $(`#${KEYS_IDS.WMESTDLockContainer}`);
         if ($lockContainerDiv.length > 0) {
             LOG.debug("\tLock container found; Removing it.");
@@ -2278,6 +2298,9 @@ async function setupEditPanelActionIcons() {
         if ($altStreetsLabelContainerDiv.length > 0 && $altStreetsLabel.length > 0) {
             LOG.debug(`\tAlt Streets Label container found; Unwrapping it.`);
             $altStreetsLabel.unwrap(`#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`); // Unwrap the container from the alt streets label section
+            // Also remove City-Seeding and Shields icons if they are present, since we will re-add them later
+            $(`#${KEYS_IDS.WMESTDCitySeeding}`).remove();
+            $(`#${KEYS_IDS.WMESTDShields}`).remove();
         } else {
             LOG.debug(`\tAlt Streets Label container not found; No need to unwrap it.`);
         }
@@ -2287,7 +2310,7 @@ async function setupEditPanelActionIcons() {
             if ($altStreetsLabel.length > 0 && selectedFeatures.objectType === FEATURES.segment) {
                 let containerStyle = "display: flex; align-items: center; justify-content: flex-end;";
                 if (!$altStreetsLabel.is(':visible') && !getAllAlternateStreets(getSegments(selectedFeatures.ids)).length) { // If the alt streets label is not visible and there are no alternate street IDs, we need to add a negative margin to the container to avoid extra space.
-                    LOG.debug("Alt Streets Label is not visible and there are no alternate street IDs; Adding negative margin to the container.");
+                    LOG.debug("\tAlt Streets Label is not visible and there are no alternate street IDs; Adding negative margin to the container.");
                     containerStyle += ' margin-bottom: -2rem;';
                 } else {
                     containerStyle += ' margin-bottom: 0.5rem;';
@@ -2295,24 +2318,27 @@ async function setupEditPanelActionIcons() {
                 $altStreetsLabel.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`);
             }
         } catch (e) {
-            LOG.error(`Error while wrapping Alt Streets Label container: ${e}`);
+            LOG.error(`\tError while wrapping Alt Streets Label container: ${e}`);
         }
 
-        LOG.debug("Edit panel containers have been reset, if present.");
+        LOG.debug("\tRemoving Sat Imagery container if present.");
+        $(`#${KEYS_IDS.WMESTDSatImages}`).remove();
+
+        LOG.debug("\tEdit panel containers have been reset, if present.");
     }
 
     function _addLockIcons(element) {
         LOG.debug("Adding lock icons to the edit panel");
         const $lockContainerDiv = $(element).siblings(`div#${KEYS_IDS.WMESTDLockContainer}`);
         if ($lockContainerDiv.length === 0) {
-            LOG.debug(`Lock container not found; Adding lock icons directly after the lock levels section.`);
+            LOG.debug(`\tLock container not found; Adding lock icons directly after the lock levels section.`);
             $(`#${KEYS_IDS.WMESTDLock}`).remove();
             $(element).after(`<div id="${KEYS_IDS.WMESTDLock}" style="display: inline-block;"> ${I_UNLOCK} &nbsp; ${I_RELOCK} </div>`);
         } else {
-            LOG.debug(`Lock container found; Adding lock icons inside the container.`);
+            LOG.debug(`\tLock container found; Adding lock icons inside the container.`);
             $lockContainerDiv.append(I_UNLOCK, I_RELOCK);
         }
-        LOG.debug('Lock icons added');
+        LOG.debug('\tLock icons added');
     }
 
     function _addPHIcons(element) {
@@ -2328,7 +2354,7 @@ async function setupEditPanelActionIcons() {
             try {
                 selectedFeature = wmeSdk.DataModel.MapComments.getById({mapCommentId: selectedFeatures.ids[0]});
             } catch (e) {
-                LOG.error(`Error while getting affected features: ${e}`);
+                LOG.error(`\tError while getting affected features: ${e}`);
             }
         }
 
@@ -2337,15 +2363,15 @@ async function setupEditPanelActionIcons() {
         const $hazardIcon = $(I_PH[Math.floor(Math.random() * I_PH.length)]); // Randomly select one of the PH icons to display
         $hazardIcon.data({"affectedObject": selectedFeatures.objectType === FEATURES.map_comment ? selectedFeature : getSegment(selectedFeatures.ids[0]), "affectedObjectType": selectedFeatures.objectType});
         if ($lockContainerDiv.length === 0) {
-            LOG.debug(`Lock container not found; Adding PH icons directly after the lock levels section.`);
+            LOG.debug(`\tLock container not found; Adding PH icons directly after the lock levels section.`);
             $(`#${KEYS_IDS.WMESTDPHazard}`).remove();
             $iconContainer.append($hazardIcon);
             $(element).after($iconContainer);
         } else {
-            LOG.debug(`Lock container found; Adding PH icons inside the container.`);
+            LOG.debug(`\tLock container found; Adding PH icons inside the container.`);
             $lockContainerDiv.append($hazardIcon);
         }
-        LOG.debug('PH icons added');
+        LOG.debug('\tPH icons added');
     }
 
     function _addSatImageryIcons(element) {
@@ -2360,15 +2386,15 @@ async function setupEditPanelActionIcons() {
             LOG.debug("Adding Sat Imagery icons to the edit panel, next to existing comment header");
             const $shadowSecHeader = $(element.shadowRoot.querySelector("div.wz-section-header"));
             const shadowHeaderBG = getComputedStyle($shadowSecHeader[0]).backgroundColor;
-            LOG.debug(`Current Shadow DOM's BG: ${shadowHeaderBG}; Shadow DOM: ${$shadowSecHeader[0]}`);
+            LOG.debug(`\tCurrent Shadow DOM's BG: ${shadowHeaderBG}; Shadow DOM: ${$shadowSecHeader[0]}`);
             $shadowSecHeader.css({backgroundColor: `${rgb2hex(shadowHeaderBG)}00`, pointerEvents: 'none'});
 
             const $iconContainer = $(`<div id="${KEYS_IDS.WMESTDSatImages}" style="display: flex; align-items: center; justify-content: flex-end; margin-top: -3rem; margin-bottom: 1rem; padding-right: 1rem;"></div>`);
             $iconContainer.append($(I_SAT_VIEW).data({"affectedObject": mapComment, "affectedObjectType": FEATURES.map_comment}));
             $(element).after($iconContainer);
-            LOG.debug('Sat Imagery icons added');
+            LOG.debug('\tSat Imagery icons added');
         } catch (e) {
-            LOG.error(`Could not add Sat Imagery icons. ${e}`);
+            LOG.error(`\tCould not add Sat Imagery icons. ${e}`);
         }
     }
 
@@ -2379,25 +2405,26 @@ async function setupEditPanelActionIcons() {
         // current editor's rank is at or above the required rank for City Seeding.
 
         try {
+            LOG.debug("Adding City Seeding icons to the edit panel");
             const segment = getSegment(selectedFeatures.ids[0]);
             const primaryStreet = segment.primaryStreetId ? wmeSdk.DataModel.Streets.getById({streetId: segment.primaryStreetId}) : null;
             const city = primaryStreet && primaryStreet.cityId ? wmeSdk.DataModel.Cities.getById({cityId: primaryStreet.cityId}) : null;
             const $element = $(element);
 
             if (selectedFeatures.ids.length !== 1 || userRank >= getRequiredRankForSeedingCities()) {
-                LOG.debug("More than one segment selected or user rank is at or above the required rank for City Seeding; Not adding City Seeding icons.");
+                LOG.debug("\tMore than one segment selected or user rank is at or above the required rank for City Seeding; Not adding City Seeding icons.");
                 return;
             }
 
             // If there are no alternateStreetIds, we can add City Seeding icons.
             // Assumption: If there are alternateStreetIds, the segment is already seeded with a city.
             if (segment.alternateStreetIds && segment.alternateStreetIds.length > 0) {
-                LOG.debug("Selected segment has alternate street IDs; Not adding City Seeding icons.");
+                LOG.debug("\tSelected segment has alternate street IDs; Not adding City Seeding icons.");
                 return;
             }
 
             if (city && !city.isEmpty) {
-                LOG.debug(`Selected segment's primary street has a non-empty city: ${city.name}; Not adding City Seeding icons.`);
+                LOG.debug(`\tSelected segment's primary street has a non-empty city: ${city.name}; Not adding City Seeding icons.`);
                 return;
             }
 
@@ -2406,17 +2433,17 @@ async function setupEditPanelActionIcons() {
             const $citySeedingIcon = $(I_CITY_SEEDING).data({"affectedObject": segment, "affectedObjectType": FEATURES.segment});
             let containerStyle = `display: flex; align-items: center; justify-content: flex-end; margin-bottom: ${$element.is(':visible') ? '0.5rem' : '-2rem'};`;
             if ($altStreetsLabelContainerDiv.length === 0) {
-                LOG.debug(`Alt Streets Label container not found; Adding City Seeding icons directly after the alt streets label section, enclosing it in a flex container.`);
+                LOG.debug(`\tAlt Streets Label container not found; Adding City Seeding icons directly after the alt streets label section, enclosing it in a flex container.`);
                 $(`#${KEYS_IDS.WMESTDCitySeeding}`).remove();
                 $iconContainer.append($citySeedingIcon);
                 $element.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`).after($iconContainer);
             } else {
-                LOG.debug(`Alt Streets Label container found; Adding City Seeding icons inside the container.`);
+                LOG.debug(`\tAlt Streets Label container found; Adding City Seeding icons inside the container.`);
                 $altStreetsLabelContainerDiv.append($citySeedingIcon);
             }
-            LOG.debug('City Seeding icons added');
+            LOG.debug('\tCity Seeding icons added');
         } catch (e) {
-            LOG.error(`Could not add City Seeding icons. ${e}`);
+            LOG.error(`\tCould not add City Seeding icons. ${e}`);
         }
     }
 
@@ -2428,30 +2455,32 @@ async function setupEditPanelActionIcons() {
             return;
         }
         try {
+            LOG.debug("Adding Shields icons to the edit panel");
             const segment = getSegment(selectedFeatures.ids[0]);
             const $altStreetsLabelContainerDiv = $(element).parent(`div#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
             const $iconContainer = $(`<div id="${KEYS_IDS.WMESTDShields}" style="display: inline-block;"></div>`);
             const $shieldsIcon = $(I_SHIELDS).data({"affectedObject": segment, "affectedObjectType": FEATURES.segment});
             const $element = $(element);
             let containerStyle = "display: flex; align-items: center; justify-content: flex-end;";
+
+            $iconContainer.append($shieldsIcon);
             if (!$element.is(':visible') && !segment.alternateStreetIds?.length) { // If the alt streets label is not visible and there are no alternate street IDs, we need to add a negative margin to the container to avoid extra space.
-                LOG.debug("Alt Streets Label is not visible and there are no alternate street IDs; Adding negative margin to the container.");
+                LOG.debug("\tAlt Streets Label is not visible and there are no alternate street IDs; Adding negative margin to the container.");
                 containerStyle += ' margin-bottom: -2rem;';
             } else {
                 containerStyle += ' margin-bottom: 0.5rem;';
             }
             if ($altStreetsLabelContainerDiv.length === 0) {
-                LOG.debug(`Alt Streets Label container not found; Adding Shields icons directly after the alt streets label section, enclosing it in a flex container.`);
+                LOG.debug(`\tAlt Streets Label container not found; Adding Shields icons directly after the alt streets label section, enclosing it in a flex container.`);
                 $(`#${KEYS_IDS.WMESTDShields}`).remove();
-                $iconContainer.append($shieldsIcon);
                 $element.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`).after($iconContainer);
             } else {
-                LOG.debug(`Alt Streets Label container found; Adding Shields icons inside the container.`);
-                $altStreetsLabelContainerDiv.append($shieldsIcon);
+                LOG.debug(`\tAlt Streets Label container found; Adding Shields icons inside the container.`);
+                $altStreetsLabelContainerDiv.append($iconContainer);
             }
-            LOG.debug('Shields icons added');
+            LOG.debug('\tShields icons added');
         } catch (e) {
-            LOG.error(`Could not add Shields icons. ${e}`);
+            LOG.error(`\tCould not add Shields icons. ${e}`);
         }
     }
 
@@ -2461,7 +2490,7 @@ async function setupEditPanelActionIcons() {
         $(`#${KEYS_IDS.WMESTDClosures}`).remove();
         $clDiv.before(`<div id="${KEYS_IDS.WMESTDClosures}" style="display: flex; justify-content: flex-start; align-items: center; gap: 1rem; margin-bottom: 0.5rem;"> ${I_CLOSURE} ${I_OPEN} </div>`);
         $clDiv.height("auto");
-        LOG.debug('Closure icons added');
+        LOG.debug('\tClosure icons added');
     }
 
     async function setupIconsForFeature(selectedFeatures, editPanel) {
@@ -2648,6 +2677,7 @@ function init() {
             .then(setupActionLocales)
             .then(setupSatImagesLocales)
             .then(loadSettingsTab)
+            .then(setupScriptUpdateMonitor)
             .then(checkScriptVersion)
             .then(() => LOG.info("WME ready event completed successfully"))
             .catch((error) => LOG.error(`Error during WME ready event: ${error}`));
