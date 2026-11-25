@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.11.25.01
+// @version         2026.11.25.02
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -119,6 +119,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.10.19.01': "<b>Change(s):</b><ul><li>Add compatibility with <a href=\"https://greasyfork.org/scripts/599569\">WME Studio script</a></li></ul>",
     '2026.11.23.01': "<b>New Feature(s):</b><ul><li>Show common street name for selected segments in Discord messages</li></ul><b>Bug Fix(es):</b><ul><li>Action icons for Map Comments were not showing because WME changed the HTML structure</li><li>City Seeding icon padding was incorrect when multiple segments were selected</li></ul>",
     '2026.11.25.01': "<b>New Feature(s):</b><ul><li>Added support for monitoring for script updates</li></ul><b>Bug Fix(es):</b><ul><li>Fix issue with some icons getting duplicated when selecting segments or map comments</li></ul>",
+    '2026.11.25.02': "<b>Bug Fix(es):</b><ul><li>Fix issue with city seeding icon getting duplicated when selecting segments</li></ul>",
 };
 
 // Var declaration
@@ -1887,7 +1888,7 @@ async function constructRequest(iconAction) {
         return [city, state, country].filter(Boolean).filter(x => typeof x === 'string' && Boolean(x.trim())).join(", ");
     }
 
-    // START: New workflow for modal dialog to collect request details; This will replace the current prompt-based workflow
+    // START: New workflow for modal dialog box to collect request details; This will replace the current prompt-based workflow
     // 1) Determine static context first (iconActionLocale, channel candidate, etc.)
 
     /**
@@ -2404,17 +2405,16 @@ async function setupEditPanelActionIcons() {
         // selected segment has its city set already, or
         // current editor's rank is at or above the required rank for City Seeding.
 
+        if (selectedFeatures.ids.length !== 1 || userRank >= getRequiredRankForSeedingCities()) {
+            LOG.debug("More than one segment selected or user rank is at or above the required rank for City Seeding; Not adding City Seeding icons.");
+            return;
+        }
+
         try {
             LOG.debug("Adding City Seeding icons to the edit panel");
             const segment = getSegment(selectedFeatures.ids[0]);
             const primaryStreet = segment.primaryStreetId ? wmeSdk.DataModel.Streets.getById({streetId: segment.primaryStreetId}) : null;
             const city = primaryStreet && primaryStreet.cityId ? wmeSdk.DataModel.Cities.getById({cityId: primaryStreet.cityId}) : null;
-            const $element = $(element);
-
-            if (selectedFeatures.ids.length !== 1 || userRank >= getRequiredRankForSeedingCities()) {
-                LOG.debug("\tMore than one segment selected or user rank is at or above the required rank for City Seeding; Not adding City Seeding icons.");
-                return;
-            }
 
             // If there are no alternateStreetIds, we can add City Seeding icons.
             // Assumption: If there are alternateStreetIds, the segment is already seeded with a city.
@@ -2428,18 +2428,19 @@ async function setupEditPanelActionIcons() {
                 return;
             }
 
+            const $element = $(element);
             const $altStreetsLabelContainerDiv = $element.parent(`div#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
             const $iconContainer = $(`<div id="${KEYS_IDS.WMESTDCitySeeding}" style="display: inline-block;"></div>`);
             const $citySeedingIcon = $(I_CITY_SEEDING).data({"affectedObject": segment, "affectedObjectType": FEATURES.segment});
             let containerStyle = `display: flex; align-items: center; justify-content: flex-end; margin-bottom: ${$element.is(':visible') ? '0.5rem' : '-2rem'};`;
+
+            $iconContainer.append($citySeedingIcon);
             if ($altStreetsLabelContainerDiv.length === 0) {
                 LOG.debug(`\tAlt Streets Label container not found; Adding City Seeding icons directly after the alt streets label section, enclosing it in a flex container.`);
-                $(`#${KEYS_IDS.WMESTDCitySeeding}`).remove();
-                $iconContainer.append($citySeedingIcon);
                 $element.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`).after($iconContainer);
             } else {
                 LOG.debug(`\tAlt Streets Label container found; Adding City Seeding icons inside the container.`);
-                $altStreetsLabelContainerDiv.append($citySeedingIcon);
+                $altStreetsLabelContainerDiv.append($iconContainer);
             }
             LOG.debug('\tCity Seeding icons added');
         } catch (e) {
@@ -2456,11 +2457,11 @@ async function setupEditPanelActionIcons() {
         }
         try {
             LOG.debug("Adding Shields icons to the edit panel");
+            const $element = $(element);
             const segment = getSegment(selectedFeatures.ids[0]);
-            const $altStreetsLabelContainerDiv = $(element).parent(`div#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
+            const $altStreetsLabelContainerDiv = $element.parent(`div#${KEYS_IDS.WMESTDAltStreetsLabelContainer}`);
             const $iconContainer = $(`<div id="${KEYS_IDS.WMESTDShields}" style="display: inline-block;"></div>`);
             const $shieldsIcon = $(I_SHIELDS).data({"affectedObject": segment, "affectedObjectType": FEATURES.segment});
-            const $element = $(element);
             let containerStyle = "display: flex; align-items: center; justify-content: flex-end;";
 
             $iconContainer.append($shieldsIcon);
@@ -2472,7 +2473,6 @@ async function setupEditPanelActionIcons() {
             }
             if ($altStreetsLabelContainerDiv.length === 0) {
                 LOG.debug(`\tAlt Streets Label container not found; Adding Shields icons directly after the alt streets label section, enclosing it in a flex container.`);
-                $(`#${KEYS_IDS.WMESTDShields}`).remove();
                 $element.wrap(`<div id="${KEYS_IDS.WMESTDAltStreetsLabelContainer}" style="${containerStyle}"></div>`).after($iconContainer);
             } else {
                 LOG.debug(`\tAlt Streets Label container found; Adding Shields icons inside the container.`);

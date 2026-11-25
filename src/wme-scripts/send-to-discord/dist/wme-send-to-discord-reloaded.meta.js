@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.11.25.01
+// @version         2026.11.25.02
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
