@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.11.25.02
+// @version         2026.11.26.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -15,6 +15,7 @@
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js
 // @require         https://wazetoolsau.com/wme-scripts/send-to-discord/dist/lib/wme-send-to-discord-reloaded-data.js
+// @require         https://assets.wazetoolsau.com/wme-send-to-discord/lib/discord-markdown.min.js
 // @grant           GM_info
 // @grant           GM_xmlhttpRequest
 // @grant           unsafeWindow
@@ -28,6 +29,7 @@
 /* global $ */
 /* global WazeWrap */
 /* global I18n */
+/* global discordMarkdown */
 /* global getWmeSdk */
 /* global OpenLayers */
 /* global unsafeWindow */
@@ -120,6 +122,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.11.23.01': "<b>New Feature(s):</b><ul><li>Show common street name for selected segments in Discord messages</li></ul><b>Bug Fix(es):</b><ul><li>Action icons for Map Comments were not showing because WME changed the HTML structure</li><li>City Seeding icon padding was incorrect when multiple segments were selected</li></ul>",
     '2026.11.25.01': "<b>New Feature(s):</b><ul><li>Added support for monitoring for script updates</li></ul><b>Bug Fix(es):</b><ul><li>Fix issue with some icons getting duplicated when selecting segments or map comments</li></ul>",
     '2026.11.25.02': "<b>Bug Fix(es):</b><ul><li>Fix issue with city seeding icon getting duplicated when selecting segments</li></ul>",
+    '2026.11.26.01': "<b>New Feature(s):</b><ul><li>Show real preview of Discord messages, with fallback to Discord Markdown in plain-text.</li></ul><b>Bug Fix(es):</b><ul><li>Fix issue with footer info formatting</li></ul>",
 };
 
 // Var declaration
@@ -600,7 +603,9 @@ function setupSatImagesLocales() {
 function injectCss() {
     const css = [
         '.w-icon.w-icon-closure:after {content: "";position: inherit;width: 3px;height: 100%;top: 0px;background: red;left: 50%;transform: translate(-10%, 0) rotate(45deg);}',
-        '.wmestd-ph-icon:focus-visible { outline: 2px solid var(--primary_variant, #4f8cc2); outline-offset: 2px;}'
+        '.wmestd-ph-icon:focus-visible { outline: 2px solid var(--primary_variant, #4f8cc2); outline-offset: 2px;}',
+        '.wmestd-subtitle {font-size: 0.9em; color: var(--disabled_text, #999); margin-top: 0.5em;}',
+        '.wmestd-h3 {font-size: 1.5rem;}',
     ].join(' ');
     $(`<style id="wmestd-styles">${css}</style>`).appendTo('head');
     LOG.info("Custom CSS injected");
@@ -1330,7 +1335,7 @@ function getRequestModalHtml() {
 
         <div id="wme-preview-row" style="margin-bottom:10px; border:1px solid #ddd; border-radius:6px; padding:10px;">
             <label><strong>${translationsInfo[71]}</strong></label>
-            <div id="wmestd-preview" style="width: stretch; min-height:160px; box-sizing:border-box; padding:10px; border:1px solid #bbb; border-radius:4px; background:var(--background_variant, #eee); color:var(--content_default, #000); font-family:monospace; white-space:pre-wrap; overflow-wrap:anywhere; box-shadow: 3px 3px 2px 2px var(--shadow_default)"></div>
+            <div id="wmestd-preview" style="width: stretch; min-height:160px; box-sizing:border-box; border-radius:4px; background:var(--background_variant, #eee); color:var(--content_default, #000); box-shadow: 3px 3px 2px 2px var(--shadow_default)"></div>
         </div>
 
         <div id="wmestd-errors-row" style="display: none; margin-bottom:10px; border:1px solid #f5c2c7; border-radius:6px; padding:10px; background:#fff5f6; color:#842029;">
@@ -1378,6 +1383,9 @@ function collectRequestViaModal(iconAction, context) {
         if (!document.getElementById(KEYS_IDS.WMESTDRequestModal)) {
             $("body").append(getRequestModalHtml());
         }
+
+        const POST_INPUT_CHANGE_DEBOUNCE_MS = 350;
+        let postInputChangeTimer = null;
 
         const $modal = $(`#${KEYS_IDS.WMESTDRequestModal}`);
         const $reason = $("#wmestd-reason");
@@ -1560,46 +1568,77 @@ function collectRequestViaModal(iconAction, context) {
             const endValue = String($end.val() || "");
             const startLocale = toLocaleDateTime(startValue);
             const endLocale = toLocaleDateTime(endValue);
-            const lockText = isLockType ? `\n${translationsInfo[57]}: ${lockLevel || "-"}` : "";
+            const lockText = isLockType ? `${translationsInfo[57]}: ${lockLevel || "-"}` : "";
             const closureText = isClosureType
-                ? `\n${translationsInfo[54]}: ${startLocale}\n${translationsInfo[55]}: ${endLocale}\n${translationsInfo[58]}: ${$direction.val()}\n${translationsInfo[56]}: ${$mapNote.is(":checked") ? `${translationsInfo[59]}` : `${translationsInfo[60]}`}`
+                ? `${translationsInfo[54]}: ${startLocale}\n${translationsInfo[55]}: ${endLocale}\n${translationsInfo[58]}: ${$direction.val()}\n${translationsInfo[56]}: ${$mapNote.is(":checked") ? `${translationsInfo[59]}` : `${translationsInfo[60]}`}`
                 : "";
-            const hazardTypeText = isHazardType ? `\n${translationsInfo[68]}: ${$hazardTypeInput.val() ? ICON_SRC[$hazardTypeInput.val()].title : "-"}` : "";
+            const hazardTypeText = isHazardType ? `${translationsInfo[68]}: ${$hazardTypeInput.val() ? ICON_SRC[$hazardTypeInput.val()].title : "-"}` : "";
             const citySeedingNameText = sanitiseString($citySeedingName.val());
             const satImagesReasonText = isSatelliteImageryType ? `${getSatImagesReasonValue($satImagesReason.val()) || "-"}` : "";
             const satImagesFreshnessText = isSatelliteImageryType ? `${getSelectedSatImagesFreshnessValue() || "-"}` : "";
             const satImagesCityText = isSatelliteImageryType ? `${$satImagesCity.val() || "-"}` : "";
 
-            const preview = context.basePreviewBuilder({
-                reason: reasonText || satImagesReasonText,
-                details: detailsText,
-                lockLevel: lockLevel,
-                closureStart: startLocale,
-                closureEnd: endLocale,
-                closureDirection: $direction.val(),
-                mapNoteConfirmed: $mapNote.is(":checked"),
-                requestedPHType: $hazardTypeInput.val(),
-                citySeedingName: citySeedingNameText,
-                satImagesFreshness: satImagesFreshnessText,
-                satImagesCity: satImagesCityText
-            });
+            function applyDefaultPreviewStyles($element) {
+                $element.css("white-space", "pre-wrap")
+                    .css("overflow-wrap", "anywhere")
+                    .css("font-family", "monospace")
+                    .css("padding", "10px")
+                    .css("border", "1px solid #bbb");
+            }
 
-            // Fallback preview if caller does not provide builder
-            $preview.text(preview || [
-                `${translationsInfo[13]}: ${context.iconActionLocale || iconAction}`,
-                `Selection: ${context.textSelection || "-"}`,
-                `Permalink: ${context.permalink || "-"}`,
-                `${translationsInfo[14]}: ${context.locationDetails.formatted || "-"}`,
-                `${translationsInfo[1]}: ${reasonText || satImagesReasonText || "-"}`,
-                `${translationsInfo[7]}: ${detailsText || "-"}`,
-                lockText,
-                closureText,
-                hazardTypeText,
-                `${translationsInfo[80]}: ${citySeedingNameText || "-"}`,
-                `${translationsInfo[100]}: ${satImagesFreshnessText || "-"}`,
-                `${translationsInfo[14]}: ${satImagesCityText || "-"}`
-            ].join("\n"));
+            try {
+                const preview = context.basePreviewBuilder({
+                    reason: reasonText || satImagesReasonText,
+                    details: detailsText,
+                    lockLevel: lockLevel,
+                    closureStart: startLocale,
+                    closureEnd: endLocale,
+                    closureDirection: $direction.val(),
+                    mapNoteConfirmed: $mapNote.is(":checked"),
+                    requestedPHType: $hazardTypeInput.val(),
+                    citySeedingName: citySeedingNameText,
+                    satImagesFreshness: satImagesFreshnessText,
+                    satImagesCity: satImagesCityText
+                });
+                if (preview.html) {
+                    $preview.html(preview.content);
+                } else {
+                    applyDefaultPreviewStyles($preview);
+                    $preview.text(preview.content)
+                }
+            } catch (e) {
+                // Fallback preview if caller does not provide builder
+                LOG.error(`Error building preview: ${e}`);
+                applyDefaultPreviewStyles($preview);
+                $preview.text([
+                    `Default Preview:\n`,
+                    `${translationsInfo[13]}: ${context.iconActionLocale || iconAction}`,
+                    `Selection: ${context.textSelection || "-"}`,
+                    `Permalink: ${context.permalink || "-"}`,
+                    `${translationsInfo[14]}: ${context.locationDetails.formatted || "-"}`,
+                    `${translationsInfo[1]}: ${reasonText || satImagesReasonText || "-"}`,
+                    `${translationsInfo[7]}: ${detailsText || "-"}`,
+                    lockText,
+                    closureText,
+                    hazardTypeText,
+                    `${isCitySeedingType ? `${translationsInfo[80]}: ${citySeedingNameText || "-"}` : ""}`,
+                    `${isSatelliteImageryType ? `${translationsInfo[100]}: ${satImagesFreshnessText || "-"}` : ""}`,
+                    `${isSatelliteImageryType ? `${translationsInfo[14]}: ${satImagesCityText || "-"}` : ""}`
+                ].filter(Boolean).join("\n"));
+            }
         }
+
+        function scheduleBuildPreview() {
+            if (postInputChangeTimer !== null) {
+                clearTimeout(postInputChangeTimer);
+            }
+
+            postInputChangeTimer = setTimeout(() => {
+                postInputChangeTimer = null;
+                buildPreview();
+            }, POST_INPUT_CHANGE_DEBOUNCE_MS);
+        }
+
 
         // Set up modal title and subtitle, clear inputs, and set up initial state based on request type
         $("#wmestd-modal-title").text(`${context.iconActionLocale} ${translationsInfo[52]} - ${context.locationDetails.formatted || translationsInfo[53]}`);
@@ -1720,28 +1759,28 @@ function collectRequestViaModal(iconAction, context) {
         $modal.off("input change click keydown");
         $modal.on("input change", "input, textarea, select", () => {
             clearModalErrors();
-            buildPreview();
+            scheduleBuildPreview();
         });
         $modal.on("click", "#wmestd-lock-level wz-checkable-chip", (event) => {
             selectLockLevelChip($(event.currentTarget));
             clearModalErrors();
-            buildPreview();
+            scheduleBuildPreview();
         });
         $modal.on("change", "#wmestd-sat-images-reason", () => {
             clearModalErrors();
-            buildPreview();
+            scheduleBuildPreview();
         });
         $modal.on("click", "#wmestd-sat-images-freshness wz-checkable-chip", (event) => {
             selectSatImagesFreshnessChip($(event.currentTarget));
             clearModalErrors();
-            buildPreview();
+            scheduleBuildPreview();
         });
         $modal.on("click keydown", ".wmestd-ph-icon", (e) => {
             if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
             if (e.type === "keydown") e.preventDefault();
             selectHazardTypeIcon($(e.currentTarget));
             clearModalErrors();
-            buildPreview();
+            scheduleBuildPreview();
         });
         $modal.on("click", "#wmestd-cancel-btn, .wmestd-modal-backdrop", () => {
             clearModalErrors();
@@ -1915,7 +1954,7 @@ async function constructRequest(iconAction) {
             `**${translationsInfo[1]}**: ${reason || "-"}`, // Reason
         ];
         details && messageLines.push(`**${translationsInfo[7]}**: ${details}`); // Details
-        let footerLines = ["", `-# Powered by [${[SCRIPT_NAME, SCRIPT_VERSION].join(" ")}](<${SCRIPT_URL}>) *updated by [DarkestWays](<${AUTHOR_URL}>) *`, " "]; // Footer
+        let footerLines = ["", `-# Powered by [${[SCRIPT_NAME, SCRIPT_VERSION].join(" ")}](<${SCRIPT_URL}>) *updated by [DarkestWays](<${AUTHOR_URL}>)*`, " "]; // Footer
 
         switch (iconAction) {
             case ACTIONS.lock:
@@ -1962,16 +2001,33 @@ async function constructRequest(iconAction) {
             let satImageRankLevel = satImagesFreshness ? getRequiredRankForSatImages() : 0;
             let shieldsRankLevel = [ACTIONS.shields].includes(iconAction) ? getRequiredRankForShields() : 0;
             let requiredRankLevel = Math.max(lockLevel, phRankLevel, citySeedingRankLevel, satImageRankLevel, shieldsRankLevel, requiredRank);
+            const editorRankIcon = EDITOR_RANK_ICONS[requiredRankLevel] || EDITOR_RANK_ICONS[1];
+            const editorRankText = `(${translationsInfo[11]}${requiredRankLevel}) - ${iconActionLocale}`;
 
             LOG.debug(`Computed required rank level for preview: ${requiredRankLevel} (Lock: ${lockLevel}, PH: ${phRankLevel}, City Seeding: ${citySeedingRankLevel}, Sat Image: ${satImageRankLevel}, Shields: ${shieldsRankLevel}, Base Required: ${requiredRank})`);
             LOG.debug(`Preview details: reason=${reason}, details=${details}, lockLevel=${lockLevel}, closureStart=${closureStart}, closureEnd=${closureEnd}, closureDirection=${closureDirection}, mapNoteConfirmed=${mapNoteConfirmed}, requestedPHType=${requestedPHType}, citySeedingName=${citySeedingName}, satImagesFreshness=${satImagesFreshness}, satImagesCity=${satImagesCity}`);
 
             let previewLines = [
-                `# (${translationsInfo[11]}${requiredRankLevel}) - ${iconActionLocale}`, // L; `(LX) - Action`
+                `### ${editorRankText}`, // L; `(LX) - Action`
                 ...messageBuilder({ reason, details, lockLevel, closureStart, closureEnd, closureDirection, mapNoteConfirmed, requestedPHType, citySeedingName, satImagesFreshness, satImagesCity })
             ];
             // Build same structure you later send to Discord
-            return previewLines.join("\n");
+            // Try getting a preview HTML using discord-markdown, but if it fails, just return the text preview.
+            try {
+                // noinspection CssUnresolvedCustomProperty
+                const previewHtml = `
+                <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: space-between; align-items:flex-start; background-color: var(--background_variant, #333); color: var(--content_p1, #EEE); border-radius: 0.5rem; padding: 1rem; margin: 0.5rem;">
+                    <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:center;">
+                        <img src="${editorRankIcon}" alt="${editorRankText} icon" title="${editorRankText}" style="width:${ICON_HEIGHT}; height:${ICON_HEIGHT};" />
+                    </div>
+                    <div style="flex:1; margin-top: -0.35rem;"> ${discordMarkdown.toHTML(previewLines.join("\n"), {embed: true, cssModuleNames: { 'd-subtext': 'wmestd-subtitle', 'd-h3': 'wmestd-h3' }})} </div>
+                </div>`;
+                LOG.debug(`Preview HTML generated:\n${previewHtml}`);
+                return {content: TRUSTED_TYPE_POLICY.createHTML(previewHtml), html: true};
+            } catch (error) {
+                LOG.error(`Error generating preview HTML: ${error}`);
+                return {content: previewLines.join("\n"), html: false};
+            }
         }
     });
     LOG.debug("Modal Result: " + JSON.stringify(modalResult, null, 2));

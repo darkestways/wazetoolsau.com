@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.11.25.02
+// @version         2026.11.26.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -15,6 +15,7 @@
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js
 // @require         https://wazetoolsau.com/wme-scripts/send-to-discord/dist/lib/wme-send-to-discord-reloaded-data.js
+// @require         https://assets.wazetoolsau.com/wme-send-to-discord/lib/discord-markdown.min.js
 // @grant           GM_info
 // @grant           GM_xmlhttpRequest
 // @grant           unsafeWindow
