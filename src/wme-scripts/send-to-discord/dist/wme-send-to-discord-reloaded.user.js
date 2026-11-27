@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.11.26.01
+// @version         2026.11.27.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -123,6 +123,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.11.25.01': "<b>New Feature(s):</b><ul><li>Added support for monitoring for script updates</li></ul><b>Bug Fix(es):</b><ul><li>Fix issue with some icons getting duplicated when selecting segments or map comments</li></ul>",
     '2026.11.25.02': "<b>Bug Fix(es):</b><ul><li>Fix issue with city seeding icon getting duplicated when selecting segments</li></ul>",
     '2026.11.26.01': "<b>New Feature(s):</b><ul><li>Show real preview of Discord messages, with fallback to Discord Markdown in plain-text.</li></ul><b>Bug Fix(es):</b><ul><li>Fix issue with footer info formatting</li></ul>",
+    '2026.11.27.01': "<b>New Feature(s):</b><ul><li>Show bot APP tag in preview, just like Discord</li><li>Show a link under settings tab if new version is available.</li></ul>",
 };
 
 // Var declaration
@@ -602,19 +603,48 @@ function setupSatImagesLocales() {
 // Injects custom CSS into the page for styling the closure icon
 function injectCss() {
     const css = [
-        '.w-icon.w-icon-closure:after {content: "";position: inherit;width: 3px;height: 100%;top: 0px;background: red;left: 50%;transform: translate(-10%, 0) rotate(45deg);}',
-        '.wmestd-ph-icon:focus-visible { outline: 2px solid var(--primary_variant, #4f8cc2); outline-offset: 2px;}',
-        '.wmestd-subtitle {font-size: 0.9em; color: var(--disabled_text, #999); margin-top: 0.5em;}',
-        '.wmestd-h3 {font-size: 1.5rem;}',
+        '.w-icon.w-icon-closure:after { content: "";position: inherit;width: 3px;height: 100%;top: 0px;background: red;left: 50%;transform: translate(-10%, 0) rotate(45deg); }',
+        '.wmestd-ph-icon:focus-visible { outline: 2px solid var(--primary_variant, #4f8cc2); outline-offset: 2px; }',
+        '.wmestd-subtitle { font-size: 0.9em; color: var(--disabled_text, #999); margin-top: 0.5em; }',
+        `.wmestd-inline-flex-centered { display: inline-flex; align-items: center; gap: 0.25rem }`,
+        '.wmestd-h3 { font-size: 1.5rem; }',
+        `.wmestd-d-bot-tag-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+            position: relative;
+            vertical-align: middle;
+        }`,
+        `.wmestd-d-bot-tag {
+            --background-brand-discord: var(--blurple-50);
+            --blurple-50: hsl(var(--blurple-50-hsl) / 1);
+            --blurple-50-hsl: 234.935 calc(var(--saturation-factor, 1) * 85.556%) 64.706%;
+            --saturation-factor: 1;
+            border-radius: 4px;
+            height: .9375rem;
+            margin-top: .2em;
+            margin-inline-start: .25rem;
+            padding: 0 .275rem;
+            position: relative;
+            top: .1rem;
+            background: var(--background-brand-discord);
+            color: var(--always_white);
+            align-items: center;
+            display: inline-flex;
+            flex-shrink: 0;
+            font-size: .625rem;
+            text-indent: 0;
+            text-transform: uppercase;
+            vertical-align: top;
+        }`,
     ].join(' ');
     $(`<style id="wmestd-styles">${css}</style>`).appendTo('head');
     LOG.info("Custom CSS injected");
 }
 
-// Check the version of the script in the browser to Warn if the script has been updates
-async function checkScriptVersion() {
+// Show update notes if the script has been updated
+async function showUpdateNotes() {
     ///////////////////////////////////////
-    //         Check for updates         //
+    //         Check if updated          //
     ///////////////////////////////////////
     let installedVersion = LS.get(KEYS_IDS.WMESTDVersion) || localStorage.getItem(KEYS_IDS.WMESTDVersion);
     if (installedVersion) {
@@ -623,7 +653,7 @@ async function checkScriptVersion() {
         }
         else {
             if (!WazeWrap.Interface) {
-                setTimeout(checkScriptVersion, 1000);
+                setTimeout(showUpdateNotes, 1000);
                 LOG.debug("WazeWrap not ready, waiting");
                 return;
             }
@@ -668,6 +698,76 @@ async function setupScriptUpdateMonitor() {
         LOG.info("Script update monitor set up");
     } catch (error) {
         LOG.error(`Error setting up script update monitor: ${error}`);
+    }
+
+    try {
+        await _updateSettingsTabIfNewReleaseAvailable();
+        LOG.info("Settings tab updated if new release available");
+    } catch (error) {
+        LOG.error(`Error updating settings tab: ${error}`);
+    }
+
+    // Since WazeWrap does not provide callbacks to utilise the new version value, if available,
+    // we are going to borrow their code to check once and update the version in settings.
+    async function _fetchLatestReleaseVersion() {
+        const metaUrl = SCRIPT_UPDATE_URL;
+        const metaRegExp = /@version\s+(.+)/i;
+        return new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+                nocache: true, revalidate: true, url: metaUrl, onload(res) {
+                    if (res.status === 503) {
+                        resolve(503);
+                    }
+                    else if (res.status === 200) {
+                        const versionMatch = res.responseText.match(metaRegExp);
+                        if (versionMatch?.length !== 2) {
+                            throw new Error(`Invalid RegExp expression (${metaRegExp}) or version # could not be found at this URL: ${metaUrl}`);
+                        }
+                        resolve(res.responseText.match(metaRegExp)[1]);
+                    }
+                    else {
+                        resolve(res);
+                    }
+                }, onerror(res) {
+                    reject(res);
+                },
+            });
+        });
+    }
+
+    async function _updateSettingsTabIfNewReleaseAvailable() {
+        const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+        let latestVersion;
+        try {
+            let tries = 1;
+            const maxTries = 3;
+            while (tries <= maxTries) {
+                latestVersion = await _fetchLatestReleaseVersion();
+                if (latestVersion === 503) {
+                    if (tries < maxTries) {
+                        LOG.debug(`${SCRIPT_NAME}: Checking for latest version again (retry #${tries})`);
+                        await sleep(1000);
+                    }
+                    else {
+                        LOG.error(`${SCRIPT_NAME}: Failed to check latest version #. Too many 503 status codes returned.`);
+                    }
+                    tries += 1;
+                }
+                else if (latestVersion.status) {
+                    LOG.error(`${SCRIPT_NAME}: Error while checking for latest version. ${JSON.stringify(latestVersion)}`);
+                    return;
+                }
+                else {
+                    break;
+                }
+            }
+        } catch (ex) {
+            LOG.error(`${SCRIPT_NAME}: Error while checking for latest version. ${JSON.stringify(ex)}`);
+            return;
+        }
+        if (latestVersion > SCRIPT_VERSION) {
+            $(`#${KEYS_IDS.WMESTDVersion}-new`).css('color', 'var(--safe_variant, green)').html(`New version available: <b><a href="${SCRIPT_DOWNLOAD_URL}" target="_blank">${latestVersion}</a></b>`).show();
+        }
     }
 }
 
@@ -798,7 +898,8 @@ async function loadSettingsTab() {
             <wz-button color="secondary" size="md" title="Visit ${SCRIPT_NAME} Homepage">${SCRIPT_NAME}</wz-button>
         </a>
     </h6>
-    <span>Current Version: <b>${SCRIPT_VERSION}</b></span>
+    <span id="${KEYS_IDS.WMESTDVersion}-current">Current Version: <b>${SCRIPT_VERSION}</b></span><br>
+    <span id="${KEYS_IDS.WMESTDVersion}-new"></span>
 
     <div style="margin-top: 1rem;">
         <label style="width: stretch">
@@ -2003,12 +2104,12 @@ async function constructRequest(iconAction) {
             let requiredRankLevel = Math.max(lockLevel, phRankLevel, citySeedingRankLevel, satImageRankLevel, shieldsRankLevel, requiredRank);
             const editorRankIcon = EDITOR_RANK_ICONS[requiredRankLevel] || EDITOR_RANK_ICONS[1];
             const editorRankText = `(${translationsInfo[11]}${requiredRankLevel}) - ${iconActionLocale}`;
+            const editorRankHeader = `### ${editorRankText}`; // L; `(LX) - Action`
 
             LOG.debug(`Computed required rank level for preview: ${requiredRankLevel} (Lock: ${lockLevel}, PH: ${phRankLevel}, City Seeding: ${citySeedingRankLevel}, Sat Image: ${satImageRankLevel}, Shields: ${shieldsRankLevel}, Base Required: ${requiredRank})`);
             LOG.debug(`Preview details: reason=${reason}, details=${details}, lockLevel=${lockLevel}, closureStart=${closureStart}, closureEnd=${closureEnd}, closureDirection=${closureDirection}, mapNoteConfirmed=${mapNoteConfirmed}, requestedPHType=${requestedPHType}, citySeedingName=${citySeedingName}, satImagesFreshness=${satImagesFreshness}, satImagesCity=${satImagesCity}`);
 
             let previewLines = [
-                `### ${editorRankText}`, // L; `(LX) - Action`
                 ...messageBuilder({ reason, details, lockLevel, closureStart, closureEnd, closureDirection, mapNoteConfirmed, requestedPHType, citySeedingName, satImagesFreshness, satImagesCity })
             ];
             // Build same structure you later send to Discord
@@ -2018,15 +2119,23 @@ async function constructRequest(iconAction) {
                 const previewHtml = `
                 <div style="display: flex; flex-direction: row; gap: 1rem; justify-content: space-between; align-items:flex-start; background-color: var(--background_variant, #333); color: var(--content_p1, #EEE); border-radius: 0.5rem; padding: 1rem; margin: 0.5rem;">
                     <div style="flex:0 0 auto; display:flex; align-items:center; justify-content:center;">
-                        <img src="${editorRankIcon}" alt="${editorRankText} icon" title="${editorRankText}" style="width:${ICON_HEIGHT}; height:${ICON_HEIGHT};" />
+                        <img src="${editorRankIcon}" alt="${editorRankText} icon" title="${editorRankText}" style="width:calc(${ICON_HEIGHT} * 1.5); height:calc(${ICON_HEIGHT} * 1.5);" />
                     </div>
-                    <div style="flex:1; margin-top: -0.35rem;"> ${discordMarkdown.toHTML(previewLines.join("\n"), {embed: true, cssModuleNames: { 'd-subtext': 'wmestd-subtitle', 'd-h3': 'wmestd-h3' }})} </div>
+                    <div style="flex:1; margin-top: -0.35rem;">
+                        <div class="wmestd-inline-flex-centered">
+                            ${discordMarkdown.toHTML(editorRankHeader, {embed: true, cssModuleNames: { 'd-h3': 'wmestd-h3' }})}
+                            <span role="img" aria-label="App" class="wmestd-d-bot-tag"><span class="wmestd-d-bot-tag-text">App</span></span><br>
+                        </div>
+                        <div>
+                            ${discordMarkdown.toHTML(previewLines.join("\n"), {embed: true, cssModuleNames: { 'd-subtext': 'wmestd-subtitle' }})}
+                        </div>
+                    </div>
                 </div>`;
                 LOG.debug(`Preview HTML generated:\n${previewHtml}`);
                 return {content: TRUSTED_TYPE_POLICY.createHTML(previewHtml), html: true};
             } catch (error) {
                 LOG.error(`Error generating preview HTML: ${error}`);
-                return {content: previewLines.join("\n"), html: false};
+                return {content: [editorRankHeader, ...previewLines].join("\n"), html: false};
             }
         }
     });
@@ -2734,7 +2843,7 @@ function init() {
             .then(setupSatImagesLocales)
             .then(loadSettingsTab)
             .then(setupScriptUpdateMonitor)
-            .then(checkScriptVersion)
+            .then(showUpdateNotes)
             .then(() => LOG.info("WME ready event completed successfully"))
             .catch((error) => LOG.error(`Error during WME ready event: ${error}`));
 
