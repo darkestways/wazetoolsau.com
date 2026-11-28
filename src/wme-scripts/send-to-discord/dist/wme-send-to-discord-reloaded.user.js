@@ -2,7 +2,7 @@
 // @name            WME Send to Discord (Reloaded)
 // @namespace       https://greasyfork.org/en/users/1558508-darkest-ways-waze
 // @description     Script to send unlock/closures/Validations requests to Discord
-// @version         2026.11.27.01
+// @version         2026.11.28.01
 // @author          DarkestWays
 // @match           *://*.waze.com/*editor*
 // @exclude         *://*.waze.com/user/editor*
@@ -124,6 +124,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2026.11.25.02': "<b>Bug Fix(es):</b><ul><li>Fix issue with city seeding icon getting duplicated when selecting segments</li></ul>",
     '2026.11.26.01': "<b>New Feature(s):</b><ul><li>Show real preview of Discord messages, with fallback to Discord Markdown in plain-text.</li></ul><b>Bug Fix(es):</b><ul><li>Fix issue with footer info formatting</li></ul>",
     '2026.11.27.01': "<b>New Feature(s):</b><ul><li>Show bot APP tag in preview, just like Discord</li><li>Show a link under settings tab if new version is available.</li></ul>",
+    '2026.11.28.01': "<b>Change(s):</b><ul><li>Update styling for preview</li></ul>",
 };
 
 // Var declaration
@@ -603,11 +604,14 @@ function setupSatImagesLocales() {
 // Injects custom CSS into the page for styling the closure icon
 function injectCss() {
     const css = [
+        // Override some of the default WME styles
         '.w-icon.w-icon-closure:after { content: "";position: inherit;width: 3px;height: 100%;top: 0px;background: red;left: 50%;transform: translate(-10%, 0) rotate(45deg); }',
+        // Custom styles for the script's UI elements [WIP]
+        `#wmestd-preview a { --wme-studio-accent: var(--primary, #4f8cc2); text-decoration: none; color: var(--primary, #4f8cc2); }`,
         '.wmestd-ph-icon:focus-visible { outline: 2px solid var(--primary_variant, #4f8cc2); outline-offset: 2px; }',
         '.wmestd-subtitle { font-size: 0.9em; color: var(--disabled_text, #999); margin-top: 0.5em; }',
         `.wmestd-inline-flex-centered { display: inline-flex; align-items: center; gap: 0.25rem }`,
-        '.wmestd-h3 { font-size: 1.5rem; }',
+        '.wmestd-h3 { font-size: 1.25rem; }',
         `.wmestd-d-bot-tag-text {
             font-size: 0.8rem;
             font-weight: 600;
@@ -621,7 +625,6 @@ function injectCss() {
             --saturation-factor: 1;
             border-radius: 4px;
             height: .9375rem;
-            margin-top: .2em;
             margin-inline-start: .25rem;
             padding: 0 .275rem;
             position: relative;
